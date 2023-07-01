@@ -4,10 +4,10 @@ from .spectrometer_widget import Ui_Form
 
 
 class SpectrometerView(ModuleView):
-    def __init__(self, model, controller):
-        super().__init__(model, controller)
+    def __init__(self, module):
+        super().__init__(module)
 
         widget = QWidget()
         self._ui_form = Ui_Form()
-        self._ui_form.setupUi(widget)
-        self._model.widget = widget
+        self._ui_form.setupUi(self)
+        self.widget = widget
