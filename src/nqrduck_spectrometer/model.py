@@ -8,3 +8,4 @@ class SpectrometerModel(ModuleModel):
     @property
     def spectrometer(self):
         return self._spectrometer
+

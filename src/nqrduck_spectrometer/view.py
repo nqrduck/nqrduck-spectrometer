@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget
 from nqrduck.module.module_view import ModuleView
-from .spectrometer_widget import Ui_Form
+from .widget import Ui_Form
 
 
 class SpectrometerView(ModuleView):
