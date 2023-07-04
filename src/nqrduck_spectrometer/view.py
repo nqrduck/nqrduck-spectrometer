@@ -1,5 +1,6 @@
 import logging
 from PyQt5.QtWidgets import QWidget, QToolButton, QToolBar, QAction, QMenu
+from PyQt5.QtCore import pyqtSlot, pyqtSignal
 from nqrduck.module.module_view import ModuleView
 from .widget import Ui_Form
 
@@ -25,6 +26,7 @@ class SpectrometerView(ModuleView):
 
     def on_spectrometer_added(self, module):
         """This method changes the active spectrometer to the one that was just added."""
+        module.change_spectrometer.connect(self.on_menu_button_clicked)
         self.on_spectrometer_widget_changed(module._inner_view)
 
     def create_menu_entry(self):
@@ -36,11 +38,13 @@ class SpectrometerView(ModuleView):
         for spectrometer_name, spectrometer_module in self._module.model._available_spectrometers.items():
             logger.debug("Adding module to menu: %s", spectrometer_name)
             select_action = QAction(spectrometer_module.model.toolbar_name, menu_item)
-            select_action.triggered.connect(lambda: self.on_menu_button_clicked(spectrometer_name))
+            select_action.triggered.connect(spectrometer_module.set_active)
             actions.append(select_action)
         
         self.add_menubar_item.emit("Hardware", actions)
 
+    @pyqtSlot(str)
     def on_menu_button_clicked(self, spectrometer_name):
         logger.debug("Active module changed to: %s", spectrometer_name)
         self._module.model.active_spectrometer = self._module.model.available_spectrometers[spectrometer_name]
+

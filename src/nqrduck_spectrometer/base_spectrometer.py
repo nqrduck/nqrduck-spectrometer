@@ -1,7 +1,9 @@
+from PyQt5.QtCore import pyqtSignal
 from nqrduck.module.module import Module
 
 class BaseSpectrometer(Module):
     """Base class for all spectrometers. All spectrometers should inherit from this class."""
+    change_spectrometer = pyqtSignal(str)
 
     def __init__(self, model, view, controller):
         super().__init__(model, None, controller)
@@ -17,3 +19,7 @@ class BaseSpectrometer(Module):
     def start_measurement(self):
         """Starts the measurement."""
         raise NotImplementedError
+    
+    def set_active(self):
+        """Sets the spectrometer as the active spectrometer."""
+        self.change_spectrometer.emit(self._model.name)
