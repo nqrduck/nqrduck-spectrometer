@@ -7,7 +7,7 @@ class BaseSpectrometer(Module):
         super().__init__(model, None, controller)
         # This stops the view from being added to the main window.
         self._view = None
-        self._inner_view = view
+        self._inner_view = view(self)
 
     @property
     def pulse_program(self):
