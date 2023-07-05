@@ -7,7 +7,12 @@ from .widget import Ui_Form
 logger = logging.getLogger(__name__)
 
 class SpectrometerView(ModuleView):
+    
     def __init__(self, module):
+        """This class is the view for the spectrometer module. It contains the menu buttons for the different spectrometers.
+        It also contains the stacked widget that shows the different spectrometer views.
+        :param module: The spectrometer module that this view belongs to.
+        """
         super().__init__(module)
 
         widget = QWidget()
@@ -17,20 +22,32 @@ class SpectrometerView(ModuleView):
         self._actions = dict()
 
     def on_active_spectrometer_changed(self, module):
+        """This method is called when the active spectrometer is changed.
+        It changes the active view in the stacked widget to the one that was just activated.
+        :param module: The BaseSpectrometer module that was just activated.
+        """
         self._ui_form.stackedWidget.setCurrentWidget(module._inner_view)
 
     def on_spectrometer_widget_changed(self, widget):
+        """This method is called when a new spectrometer widget is added to the module.
+        It adds the widget to the stacked widget and sets it as the current widget.
+        :param widget: The widget that was added to the module.
+        """
         logger.debug("Adding module widget to stacked widget: %s", widget)
         self._ui_form.stackedWidget.addWidget(widget)
         self._ui_form.stackedWidget.setCurrentWidget(widget)
 
 
     def on_spectrometer_added(self, module):
-        """This method changes the active spectrometer to the one that was just added."""
+        """This method changes the active spectrometer to the one that was just added.
+        :param module: The BaseSpectrometer module that was just added.
+        """
         module.change_spectrometer.connect(self.on_menu_button_clicked)
         self.on_spectrometer_widget_changed(module._inner_view)
 
     def create_menu_entry(self):
+        """This method creates the menu entry for the spectrometer module. It creates a menu item for each spectrometer that is available.
+        """
         logger.debug("Creating menu entry for spectrometer module")
         menu_item = QMenu("Hardware")
         logger.debug("Available spectrometer models: %s", self._module.model._available_spectrometers)
