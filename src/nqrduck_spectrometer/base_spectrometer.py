@@ -13,13 +13,11 @@ class BaseSpectrometer(Module):
 
     @property
     def pulse_program(self):
-        """Pulse program of the spectrometer."""
-        raise NotImplementedError
-
-    def start_measurement(self):
-        """Starts the measurement."""
+        """Pulse program of the spectrometer.
+        """
         raise NotImplementedError
     
     def set_active(self):
-        """Sets the spectrometer as the active spectrometer."""
+        """Sets the spectrometer as the active spectrometer.
+        """
         self.change_spectrometer.emit(self._model.name)

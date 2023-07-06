@@ -16,6 +16,8 @@ class SpectrometerModel(ModuleModel):
 
     @property
     def active_spectrometer(self):
+        """The currently active spectrometer. This is the one that is currently being used.
+        """
         return self._active_spectrometer
     
     @active_spectrometer.setter
@@ -25,11 +27,14 @@ class SpectrometerModel(ModuleModel):
     
     @property
     def available_spectrometers(self):
+        """A dictionary of all available spectrometers. The key is the name of the spectrometer and the value is the module.
+        """
         return self._available_spectrometers
     
     def add_spectrometers(self, spectrometer_module_name, module):
         self._available_spectrometers [spectrometer_module_name] = module
         logger.debug("Added module: %s", spectrometer_module_name)
         self.spectrometer_added.emit(module)
+        self.active_spectrometer = module
 
 
