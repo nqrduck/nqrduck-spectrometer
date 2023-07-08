@@ -1,5 +1,5 @@
 import logging
-from PyQt5.QtCore import pyqtSlot
+from PyQt6.QtCore import pyqtSlot
 from nqrduck.module.module_controller import ModuleController
 from nqrduck.core.main_controller import MainController
 from nqrduck_spectrometer.base_spectrometer import BaseSpectrometer
@@ -49,10 +49,10 @@ class SpectrometerController(ModuleController):
         It connects the signals from the spectrometer model to the view.
         """
         self._module.model.spectrometer_added.connect(
-            self._module.view.on_spectrometer_added
+            self.module.view.on_spectrometer_added
         )
         self._module.model.active_spectrometer_changed.connect(
-            self._module.view.on_active_spectrometer_changed
+            self.module.view.on_active_spectrometer_changed
         )
         self._load_spectrometer_modules()
 
@@ -62,6 +62,6 @@ class SpectrometerController(ModuleController):
         """
         logger.debug(
             "Measurement started with spectrometer: %s",
-            self._module.model.active_spectrometer,
+            self.module.model.active_spectrometer,
         )
-        self._module.model.active_spectrometer.controller.start_measurement()
+        self.module.model.active_spectrometer.controller.start_measurement()

@@ -1,5 +1,5 @@
 import logging
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal
 from nqrduck.module.module_model import ModuleModel
 from .base_spectrometer import BaseSpectrometer
 

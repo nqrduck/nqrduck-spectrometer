@@ -1,6 +1,7 @@
 import logging
-from PyQt5.QtWidgets import QWidget, QToolButton, QToolBar, QAction, QMenu
-from PyQt5.QtCore import pyqtSlot, pyqtSignal
+from PyQt6.QtWidgets import QWidget, QToolButton, QToolBar, QMenu
+from PyQt6.QtGui import QAction
+from PyQt6.QtCore import pyqtSlot, pyqtSignal
 from nqrduck.module.module_view import ModuleView
 from .widget import Ui_Form
 
