@@ -8,7 +8,7 @@ class BaseSpectrometer(Module):
     def __init__(self, model, view, controller):
         super().__init__(model, None, controller)
         # This stops the view from being added to the main window.
-        self._view = None
+        self.view = None
         self.settings_view = view(self)
     
     def set_active(self):
