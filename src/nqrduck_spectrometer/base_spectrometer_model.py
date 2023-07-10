@@ -1,42 +1,38 @@
+import logging
 from collections import OrderedDict
+from PyQt6.QtCore import pyqtSlot
 from nqrduck.module.module_model import ModuleModel
 
-class BaseSpectrometerModel(ModuleModel):
+logger = logging.getLogger(__name__)
 
+class BaseSpectrometerModel(ModuleModel):
     def __init__(self, module):
         super().__init__(module)
         self.settings = OrderedDict()
         self.pulse_parameter_options = OrderedDict()
-        
+
     def add_setting(self, name, value, description) -> None:
         self.settings[name] = self.Setting(name, value, description)
 
     def add_pulse_parameter_option(self, name, options) -> None:
         self.pulse_parameter_options[name] = options
 
-    class Setting():
+    class Setting:
+        """A setting for the spectrometer is a value that is the same for all events in a pulse sequence.
+        E.g. the number of averages or the number of points in a spectrum."""
+
         def __init__(self, name, default, description) -> None:
             self.name = name
             self.value = default
             self.description = description
 
-    class PulseParameter():
+        @pyqtSlot(str)
+        def on_value_changed(self, value):
+            logger.debug("Setting %s changed to %s", self.name, value)
+            self.value = value
+
+    class PulseParameter:
         def __init__(self, name):
             self.name = name
 
-    class PulseSequence():
-        def __init__(self) -> None:
-            self.events = list()
 
-        def get_event_names(self) -> list:
-            return [event.name for event in self.events]
-
-    class Event():
-        parameters = list()
-
-        def __init__(self, name : str, duration : float) -> None:
-            self.name = name
-            self.duration = duration
-
-        def add_parameter(self, parameter) -> None:
-            self.parameters.append(parameter)

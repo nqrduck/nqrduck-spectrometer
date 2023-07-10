@@ -27,7 +27,7 @@ class SpectrometerView(ModuleView):
         It changes the active view in the stacked widget to the one that was just activated.
         :param module: The BaseSpectrometer module that was just activated.
         """
-        self._ui_form.stackedWidget.setCurrentWidget(module._inner_view)
+        self._ui_form.stackedWidgetSettings.setCurrentWidget(module.settings_view)
 
     def on_spectrometer_widget_changed(self, widget):
         """This method is called when a new spectrometer widget is added to the module.
@@ -35,8 +35,8 @@ class SpectrometerView(ModuleView):
         :param widget: The widget that was added to the module.
         """
         logger.debug("Adding module widget to stacked widget: %s", widget)
-        self._ui_form.stackedWidget.addWidget(widget)
-        self._ui_form.stackedWidget.setCurrentWidget(widget)
+        self._ui_form.stackedWidgetSettings.addWidget(widget)
+        self._ui_form.stackedWidgetSettings.setCurrentWidget(widget)
 
 
     def on_spectrometer_added(self, module):
@@ -44,7 +44,7 @@ class SpectrometerView(ModuleView):
         :param module: The BaseSpectrometer module that was just added.
         """
         module.change_spectrometer.connect(self.on_menu_button_clicked)
-        self.on_spectrometer_widget_changed(module._inner_view)
+        self.on_spectrometer_widget_changed(module.settings_view)
 
     def create_menu_entry(self):
         """This method creates the menu entry for the spectrometer module. It creates a menu item for each spectrometer that is available.
