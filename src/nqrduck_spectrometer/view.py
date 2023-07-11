@@ -29,7 +29,7 @@ class SpectrometerView(ModuleView):
         )
 
         self._ui_form.stackedWidgetPulseProgrammer.setStyleSheet(
-            "QStackedWidget { background-color: #fafaaa; border: 2px solid #000; }"
+            "QStackedWidget { background-color: #fafafa; border: 2px solid #000; }"
         )
 
     def on_active_spectrometer_changed(self, module):
