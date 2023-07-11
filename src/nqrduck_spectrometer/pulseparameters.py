@@ -36,6 +36,15 @@ class TXPulse(BaseSpectrometerModel.PulseParameter):
             self.rx_freq = 0
             self.rx_phase = 0
 
+class TXPhase(BaseSpectrometerModel.PulseParameter):
+    def __init__(self, name) -> None:
+        super().__init__(name)
+        self.phase = 0
+
+class RXPhase(BaseSpectrometerModel.PulseParameter):
+    def __init__(self, name) -> None:
+        super().__init__(name)
+        self.phase = 0
 
 class Gate(BaseSpectrometerModel.PulseParameter):
     def __init__(self, name) -> None:
