@@ -14,8 +14,8 @@ class BaseSpectrometerModel(ModuleModel):
     def add_setting(self, name, value, description) -> None:
         self.settings[name] = self.Setting(name, value, description)
 
-    def add_pulse_parameter_option(self, name, options) -> None:
-        self.pulse_parameter_options[name] = options
+    def add_pulse_parameter_option(self, name, pulse_parameter_class) -> None:
+        self.pulse_parameter_options[name] = pulse_parameter_class
 
     class Setting:
         """A setting for the spectrometer is a value that is the same for all events in a pulse sequence.
@@ -34,5 +34,11 @@ class BaseSpectrometerModel(ModuleModel):
     class PulseParameter:
         def __init__(self, name):
             self.name = name
+        
+        def get_pixmap(self):
+            raise NotImplementedError
+        
+        def get_options(self):
+            raise NotImplementedError
 
 

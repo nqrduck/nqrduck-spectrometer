@@ -31,7 +31,7 @@ class BaseSpectrometerView(ModuleView):
             logger.debug("Adding setting to settings view: %s", setting.name)
             # Create a label for the setting
             label = QLabel(setting.name)
-            label.setMinimumWidth(70)
+            label.setMinimumWidth(120)
             # Add an QLineEdit for the setting
             line_edit = QLineEdit(str(setting.value))
             line_edit.setMinimumWidth(100)
