@@ -2,21 +2,53 @@ from PyQt6.QtGui import QPixmap
 from pathlib import Path
 from .base_spectrometer_model import BaseSpectrometerModel
 
+class Option():
+    """Defines options for the pulse parameters which can then be set accordingly.
+    """
+    def set_value(self):
+        raise NotImplementedError
+
+class BooleanOption(Option):
+    """Defines a boolean option for a pulse parameter.
+    """
+    def __init__(self, state) -> None:
+        super().__init__()
+        self.state = state
+
+    def set_value(self, state):
+        self.state = state
+        
+class NumericOption(Option):
+    """Defines a numeric option for a pulse parameter.
+    """
+    def __init__(self, value) -> None:
+        super().__init__()
+        self.value = value
+
+    def set_value(self, value):
+        self.value = float(value)
+
+class WidgetSelectionOption(Option):
+    """Defines a widget selection option for a pulse parameter.
+    """
+    def __init__(self, widgets) -> None:
+        super().__init__()
+
+
 class TXPulse(BaseSpectrometerModel.PulseParameter):
     def __init__(self, name) -> None:
         super().__init__(name)
-        self.tx_state = False
-        self.tx_phase = 0
+        self.add_option("TX Amplitude", NumericOption(0))
+        self.add_option("TX Phase", NumericOption(0))
 
-        # Create a button
-        self.button = QPushButton(self)
-        self.button.setGeometry(0, 0, 200, 200)
-
-        # Set a custom image for the button
-        image_path = "resources/wip_no_pulse.png"
-        pixmap = QPixmap(image_path)
-        self.button.setIcon(pixmap)
-        self.button.setIconSize(pixmap.size())
+    def get_pixmap(self):
+        self_path = Path(__file__).parent
+        if self.options["TX Amplitude"].value > 0:
+            image_path = self_path / "resources/pulseparameter/wip_txpulse.png"
+        else:
+            image_path = self_path / "resources/pulseparameter/wip_no_txpulse.png"
+        pixmap = QPixmap(str(image_path))
+        return pixmap
 
     class RectPulse():
         def __init__(self, name) -> None:
@@ -30,39 +62,25 @@ class TXPulse(BaseSpectrometerModel.PulseParameter):
         def __init__(self, name) -> None:
             super().__init__(name)
 
-    class RXReadout(BaseSpectrometerModel.PulseParameter):
-        def __init__(self, name) -> None:
-            super().__init__(name)
-            self.rx_freq = 0
-            self.rx_phase = 0
-
-class TXPhase(BaseSpectrometerModel.PulseParameter):
+class RXReadout(BaseSpectrometerModel.PulseParameter):
     def __init__(self, name) -> None:
         super().__init__(name)
-        self.phase = 0
-
-class RXPhase(BaseSpectrometerModel.PulseParameter):
-    def __init__(self, name) -> None:
-        super().__init__(name)
-        self.phase = 0
 
 class Gate(BaseSpectrometerModel.PulseParameter):
+    
     def __init__(self, name) -> None:
         super().__init__(name)
-        self.state = False
+        self.add_option("Gate State", BooleanOption(False))
 
     def get_pixmap(self):
         self_path = Path(__file__).parent
-        if self.state is False:
+        if self.options["Gate State"].state == False:
             image_path = self_path / "resources/pulseparameter/wip_no_txpulse.png"
-        elif self.state is True:
+        else:
             image_path = self_path / "resources/pulseparameter/wip_txpulse.png"
         pixmap = QPixmap(str(image_path))
         return pixmap
 
-    def get_options(self):
-        return (bool, self.state)
-    
     def set_options(self, options):
         self.state = options
 

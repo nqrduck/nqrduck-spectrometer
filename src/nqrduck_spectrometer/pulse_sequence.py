@@ -1,5 +1,7 @@
 from collections import OrderedDict
+
 class PulseSequence:
+    """A pulse sequence is a collection of events that are executed in a certain order."""
     def __init__(self, name) -> None:
         self.name = name
         self.events = OrderedDict()
@@ -33,7 +35,7 @@ class PulseSequence:
             for parameter in self.events[event].parameters.keys():
                 event_data["parameters"].append({
                     "name": parameter,
-                    "value": self.events[event].parameters[parameter].state
+                    "value": self.events[event].parameters[parameter].get_options()
                 })
             data["events"].append(event_data)
         return data

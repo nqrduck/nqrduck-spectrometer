@@ -34,11 +34,16 @@ class BaseSpectrometerModel(ModuleModel):
     class PulseParameter:
         def __init__(self, name):
             self.name = name
+            self.options = OrderedDict()
         
         def get_pixmap(self):
             raise NotImplementedError
         
+        def add_option(self, name, option):
+            self.options[name] = option
+
         def get_options(self):
-            raise NotImplementedError
+            return self.options
+        
 
 
