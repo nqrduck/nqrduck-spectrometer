@@ -1,5 +1,6 @@
 import logging
-from PyQt6.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QSizePolicy, QSpacerItem
+from PyQt6.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QSizePolicy, QSpacerItem, QVBoxLayout
+from PyQt6.QtCore import Qt
 from nqrduck.module.module_view import ModuleView
 
 logger = logging.getLogger(__name__)
@@ -21,17 +22,24 @@ class BaseSpectrometerView(ModuleView):
         self.widget = widget
         self._ui_form.setupUi(self)
 
+        grid = self._ui_form.gridLayout
+        self._ui_form.verticalLayout.removeItem(self._ui_form.gridLayout)
         # Add name of the spectrometer to the view
         label = QLabel("%s Settings:" % self.module.model.toolbar_name)
         label.setStyleSheet("font-weight: bold;")
         self._ui_form.verticalLayout.setSpacing(5)
         self._ui_form.verticalLayout.addWidget(label)
+        self._ui_form.verticalLayout.addLayout(grid)
 
-        for category in self.module.model.settings.keys():
+        for category_count, category in enumerate(self.module.model.settings.keys()):
             logger.debug("Adding settings for category: %s", category)
+            category_layout = QVBoxLayout()
             category_label = QLabel("%s:" % category)
-            category_label.setStyleSheet("font-weight: underline;")
-            self._ui_form.verticalLayout.addWidget(category_label)
+            category_label.setStyleSheet("font-weight: bold;")
+            row = category_count // 2
+            column = category_count % 2
+
+            category_layout.addWidget(category_label)
             for setting in self.module.model.settings[category]:
                 logger.debug("Adding setting to settings view: %s", setting.name)
                 
@@ -52,9 +60,12 @@ class BaseSpectrometerView(ModuleView):
                 layout.addWidget(line_edit)
                 layout.addStretch(1)
                 # Add the layout to the vertical layout of the widget
-                self._ui_form.verticalLayout.addLayout(layout)
+                category_layout.addLayout(layout)
+            
+            category_layout.addStretch(1)
+            self._ui_form.gridLayout.addLayout(category_layout, row, column)
+            
         
         # Push all the settings to the top of the widget
         self._ui_form.verticalLayout.addStretch(1)
-
         
