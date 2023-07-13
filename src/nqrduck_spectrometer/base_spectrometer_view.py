@@ -1,4 +1,5 @@
 import logging
+from functools import partial
 from PyQt6.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QSizePolicy, QSpacerItem
 from nqrduck.module.module_view import ModuleView
 
@@ -45,7 +46,8 @@ class BaseSpectrometerView(ModuleView):
                 # Add a horizontal layout for the setting
                 layout = QHBoxLayout()
                 # Connect the editingFinished signal to the on_value_changed slot of the setting
-                line_edit.editingFinished.connect(lambda: setting.on_value_changed(line_edit.text()))
+                update_func = partial(setting.on_value_changed, line_edit.text())
+                line_edit.editingFinished.connect(lambda x=line_edit: setting.on_value_changed(x.text()))
                 # Add the label and the line edit to the layout
                 layout.addItem(spacer)
                 layout.addWidget(setting_label)
