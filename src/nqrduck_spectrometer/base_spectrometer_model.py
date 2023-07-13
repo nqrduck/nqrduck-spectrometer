@@ -11,8 +11,10 @@ class BaseSpectrometerModel(ModuleModel):
         self.settings = OrderedDict()
         self.pulse_parameter_options = OrderedDict()
 
-    def add_setting(self, name, value, description) -> None:
-        self.settings[name] = self.Setting(name, value, description)
+    def add_setting(self, name, value, description, category) -> None:
+        if category not in self.settings.keys():
+            self.settings[category] = []
+        self.settings[category].append(self.Setting(name, value, description))
 
     def add_pulse_parameter_option(self, name, pulse_parameter_class) -> None:
         self.pulse_parameter_options[name] = pulse_parameter_class

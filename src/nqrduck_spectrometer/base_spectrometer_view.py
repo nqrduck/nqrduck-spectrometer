@@ -1,5 +1,5 @@
 import logging
-from PyQt6.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QSizePolicy
+from PyQt6.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QSizePolicy, QSpacerItem
 from nqrduck.module.module_view import ModuleView
 
 logger = logging.getLogger(__name__)
@@ -27,24 +27,32 @@ class BaseSpectrometerView(ModuleView):
         self._ui_form.verticalLayout.setSpacing(5)
         self._ui_form.verticalLayout.addWidget(label)
 
-        for setting in self.module.model.settings.values():
-            logger.debug("Adding setting to settings view: %s", setting.name)
-            # Create a label for the setting
-            label = QLabel(setting.name)
-            label.setMinimumWidth(120)
-            # Add an QLineEdit for the setting
-            line_edit = QLineEdit(str(setting.value))
-            line_edit.setMinimumWidth(100)
-            # Add a horizontal layout for the setting
-            layout = QHBoxLayout()
-            # Connect the editingFinished signal to the on_value_changed slot of the setting
-            line_edit.editingFinished.connect(lambda: setting.on_value_changed(line_edit.text()))
-            # Add the label and the line edit to the layout
-            layout.addWidget(label)
-            layout.addWidget(line_edit)
-            layout.addStretch(1)
-            # Add the layout to the vertical layout of the widget
-            self._ui_form.verticalLayout.addLayout(layout)
+        for category in self.module.model.settings.keys():
+            logger.debug("Adding settings for category: %s", category)
+            category_label = QLabel("%s:" % category)
+            category_label.setStyleSheet("font-weight: underline;")
+            self._ui_form.verticalLayout.addWidget(category_label)
+            for setting in self.module.model.settings[category]:
+                logger.debug("Adding setting to settings view: %s", setting.name)
+                
+                spacer = QSpacerItem(20, 20)
+                # Create a label for the setting
+                setting_label = QLabel(setting.name)
+                setting_label.setMinimumWidth(200)
+                # Add an QLineEdit for the setting
+                line_edit = QLineEdit(str(setting.value))
+                line_edit.setMinimumWidth(100)
+                # Add a horizontal layout for the setting
+                layout = QHBoxLayout()
+                # Connect the editingFinished signal to the on_value_changed slot of the setting
+                line_edit.editingFinished.connect(lambda: setting.on_value_changed(line_edit.text()))
+                # Add the label and the line edit to the layout
+                layout.addItem(spacer)
+                layout.addWidget(setting_label)
+                layout.addWidget(line_edit)
+                layout.addStretch(1)
+                # Add the layout to the vertical layout of the widget
+                self._ui_form.verticalLayout.addLayout(layout)
         
         # Push all the settings to the top of the widget
         self._ui_form.verticalLayout.addStretch(1)
