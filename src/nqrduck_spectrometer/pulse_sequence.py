@@ -1,4 +1,7 @@
+import logging
 from collections import OrderedDict
+
+logger = logging.getLogger(__name__)
 
 class PulseSequence:
     """A pulse sequence is a collection of events that are executed in a certain order."""
@@ -19,6 +22,10 @@ class PulseSequence:
 
         def add_parameter(self, parameter) -> None:
             self.parameters.append(parameter)
+
+        def on_duration_changed(self, duration: float) -> None:
+            logger.debug("Duration of event %s changed to %s", self.name, duration)
+            self.duration = duration
 
     def dump_sequence_data(self):
         """Returns a dict with all the data in the pulse sequence"""
