@@ -7,7 +7,7 @@ class PulseSequence:
     """A pulse sequence is a collection of events that are executed in a certain order."""
     def __init__(self, name) -> None:
         self.name = name
-        self.events = OrderedDict()
+        self.events = list()
 
     def get_event_names(self) -> list:
         return [event.name for event in self.events]
@@ -33,16 +33,16 @@ class PulseSequence:
             "name": self.name,
             "events": []
         }
-        for event in self.events.keys():
+        for event in self.events:
             event_data = {
-                "name": self.events[event].name,
-                "duration": self.events[event].duration,
+                "name": event.name,
+                "duration": event.duration,
                 "parameters": []
             }
-            for parameter in self.events[event].parameters.keys():
+            for parameter in event.parameters.keys():
                 event_data["parameters"].append({
                     "name": parameter,
-                    "value": self.events[event].parameters[parameter].get_options()
+                    "value": event.parameters[parameter].get_options()
                 })
             data["events"].append(event_data)
         return data

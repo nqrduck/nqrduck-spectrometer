@@ -33,6 +33,9 @@ class BaseSpectrometerModel(ModuleModel):
             logger.debug("Setting %s changed to %s", self.name, value)
             self.value = value
 
+        def get_setting(self):
+            return float(self.value)
+
     class PulseParameter:
         def __init__(self, name):
             self.name = name
