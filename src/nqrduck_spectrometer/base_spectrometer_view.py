@@ -53,7 +53,7 @@ class BaseSpectrometerView(ModuleView):
                 # Add a horizontal layout for the setting
                 layout = QHBoxLayout()
                 # Connect the editingFinished signal to the on_value_changed slot of the setting
-                line_edit.editingFinished.connect(lambda x=line_edit: setting.on_value_changed(x.text()))
+                line_edit.editingFinished.connect(lambda x=line_edit, s=setting: s.on_value_changed(x.text()))
                 # Add the label and the line edit to the layout
                 layout.addItem(spacer)
                 layout.addWidget(setting_label)
