@@ -40,7 +40,7 @@ class SpectrometerController(ModuleController):
 
         self._module.view.create_menu_entry()
 
-    def process_signals(self, key: str, value: str):
+    def process_signals(self, key: str, value: None):
         if key == "start_measurement":
             self.on_measurement_start()
 

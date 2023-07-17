@@ -35,6 +35,7 @@ class BaseSpectrometerModel(ModuleModel):
 
         def get_setting(self):
             return float(self.value)
+        
 
     class PulseParameter:
         def __init__(self, name):
