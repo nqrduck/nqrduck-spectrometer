@@ -9,3 +9,9 @@ class BaseSpectrometerController(ModuleController):
         """Starts the measurement.
         """
         raise NotImplementedError
+    
+    def set_frequency(self, value):
+        raise NotImplementedError
+    
+    def set_averages(self, value):
+        raise NotImplementedError

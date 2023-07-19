@@ -43,6 +43,10 @@ class SpectrometerController(ModuleController):
     def process_signals(self, key: str, value: None):
         if key == "start_measurement":
             self.on_measurement_start()
+        elif key == "set_frequency":
+            self.module.model.active_spectrometer.controller.set_frequency(value)
+        elif key == "set_averages":
+            self.module.model.active_spectrometer.controller.set_averages(value)
 
     def on_loading(self):
         """This method is called when the module is loaded.
