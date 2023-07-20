@@ -43,6 +43,7 @@ class BaseSpectrometerModel(ModuleModel):
 
         def get_options(self):
             return self.options
+        
 
     def __init__(self, module):
         super().__init__(module)

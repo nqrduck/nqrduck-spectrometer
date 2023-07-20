@@ -8,18 +8,19 @@ class Option():
     def set_value(self):
         raise NotImplementedError
 
-class BooleanOption(Option):
-    """Defines a boolean option for a pulse parameter.
-    """
-    def __init__(self, state) -> None:
-        super().__init__()
-        self.state = state
 
-    def set_value(self, state):
-        self.state = state
+class BooleanOption(Option):
+    """Defines a boolean option for a pulse parameter option.
+    """
+    def __init__(self, value) -> None:
+        super().__init__()
+        self.value = value
+
+    def set_value(self, value):
+        self.value = value
         
 class NumericOption(Option):
-    """Defines a numeric option for a pulse parameter.
+    """Defines a numeric option for a pulse parameter option.
     """
     def __init__(self, value) -> None:
         super().__init__()
@@ -29,7 +30,7 @@ class NumericOption(Option):
         self.value = float(value)
 
 class WidgetSelectionOption(Option):
-    """Defines a widget selection option for a pulse parameter.
+    """Defines a widget selection option for a pulse parameter option.
     """
     def __init__(self, widgets) -> None:
         super().__init__()
@@ -69,7 +70,7 @@ class RXReadout(BaseSpectrometerModel.PulseParameter):
 
     def get_pixmap(self):
         self_path = Path(__file__).parent
-        if self.options["RX"].state == False:
+        if self.options["RX"].value == False:
             image_path = self_path / "resources/pulseparameter/RXOff.png"
         else:
             image_path = self_path / "resources/pulseparameter/RXOn.png"

@@ -27,6 +27,22 @@ class PulseSequence:
             logger.debug("Duration of event %s changed to %s", self.name, duration)
             self.duration = duration
 
+        @classmethod
+        def load_event(cls, event, pulse_parameter_options):
+            """Loads an event from a dict. The pulse paramter options are needed to load the parameters
+              and determine if the correct spectrometer is active."""
+            obj = cls(event["name"], event["duration"])
+            for parameter in event["parameters"]:
+                for pulse_parameter_option in pulse_parameter_options.keys():
+                    # This checks if the pulse paramter options are the same as the ones in the pulse sequence
+                    if pulse_parameter_option == parameter["name"]:
+                        pulse_paramter_class = pulse_parameter_options[pulse_parameter_option]
+                        obj.parameters[pulse_parameter_option] = pulse_paramter_class(parameter["name"])
+                        for option in parameter["value"]:
+                            obj.parameters[pulse_parameter_option].options[option["name"]].value = option["value"]
+
+            return obj
+
     def dump_sequence_data(self):
         """Returns a dict with all the data in the pulse sequence"""
         data = {
@@ -42,7 +58,21 @@ class PulseSequence:
             for parameter in event.parameters.keys():
                 event_data["parameters"].append({
                     "name": parameter,
-                    "value": event.parameters[parameter].get_options()
+                    "value": []
                 })
+                for option in event.parameters[parameter].options.keys():
+                    event_data["parameters"][-1]["value"].append({
+                        "name": option,
+                        "value": event.parameters[parameter].options[option].value
+                    })
             data["events"].append(event_data)
         return data
+    
+    @classmethod
+    def load_sequence(cls, sequence, pulse_parameter_options):
+        obj = cls(sequence["name"])
+        for event_data in sequence["events"]:
+            obj.events.append(cls.Event.load_event(event_data, pulse_parameter_options))
+        
+        return obj
+                
