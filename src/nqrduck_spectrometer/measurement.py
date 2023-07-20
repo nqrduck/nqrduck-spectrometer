@@ -1,4 +1,7 @@
+import logging
 from nqrduck.helpers.signalprocessing import SignalProcessing as sp
+
+logger = logging.getLogger(__name__)
 
 class Measurement():
     """This class defines how measurement data should look. 
