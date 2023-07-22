@@ -1,7 +1,110 @@
-from PyQt6.QtGui import QPixmap
+import numpy as np
+import sympy
 from pathlib import Path
+from PyQt6.QtGui import QPixmap
+from nqrduck.contrib.mplwidget import MplWidget
+from nqrduck.helpers.signalprocessing import SignalProcessing as sp
 from .base_spectrometer_model import BaseSpectrometerModel
 
+class Function():
+    name: str
+    parameters : list
+    expression: str | sympy.Expr
+    resolution: float
+    start_x: float
+    end_x: float
+
+    def __init__(self, expr) -> None:
+        self.parameters = []
+        self.expr = expr
+        self.resolution = 22e-9 * 16# 1e-6
+        self.start_x = -1
+        self.end_x = 1
+
+    def get_time_points(self, pulse_length : float) -> np.ndarray:
+        """Returns the time domain points for the function with the given pulse length."""
+        # Get the time domain points
+        n = int(pulse_length / self.resolution)
+        t = np.linspace(0, pulse_length, n)
+        return t
+    
+    def evaluate(self, pulse_length: float) -> np.ndarray:
+        """Evaluates the function for the given pulse length."""
+        n = int(pulse_length / self.resolution)
+        t = np.linspace(-np.pi, np.pi, n)
+        x = sympy.symbols("x")
+
+        found_variables = dict()
+        # Create a dictionary of the parameters and their values
+        for parameter in self.parameters:
+            found_variables[parameter.symbol] = parameter.value
+
+        final_expr = self.expr.subs(found_variables)
+         # If the expression is a number (does not depend on x), return an array of that number
+        if final_expr.is_number:
+            return np.full(t.shape, float(final_expr))
+
+        f = sympy.lambdify([x], final_expr, "numpy")
+       
+        return f(t)
+    
+    def frequency_domain_plot(self, pulse_length : float) -> MplWidget:
+        mpl_widget = MplWidget()
+        td = self.get_time_points(pulse_length)
+        yd = self.evaluate(pulse_length)
+        xdf, ydf = sp.fft(td, yd)
+        mpl_widget.canvas.ax.plot(xdf, ydf)
+        mpl_widget.canvas.ax.set_xlabel("Frequency in Hz")
+        mpl_widget.canvas.ax.set_ylabel("Magnitude")
+        return mpl_widget
+
+    def time_domain_plot(self, pulse_length : float) -> MplWidget:
+        mpl_widget = MplWidget()
+        td = self.get_time_points(pulse_length)
+        mpl_widget.canvas.ax.plot(td, self.evaluate(pulse_length))
+        mpl_widget.canvas.ax.set_xlabel("Time in s")
+        mpl_widget.canvas.ax.set_ylabel("Magnitude")
+        return mpl_widget
+        
+    def add_parameter(self, parameter : "Function.Parameter"):
+        self.parameters.append(parameter)
+
+    class Parameter:
+        def __init__(self, name : str, symbol : str, value : float) -> None:
+            self.name = name
+            self.symbol = symbol
+            self.value = value
+            self.default = value
+
+class RectFunction(Function):
+    name = "Rectangular"
+    def __init__(self) -> None:
+        expr = sympy.sympify("1")
+        super().__init__(expr)
+
+class SincFunction(Function):
+    name = "Sinc"
+    def __init__(self) -> None:
+        expr = sympy.sympify("sin(x * l)/ (x * l)")
+        super().__init__(expr)
+        self.add_parameter(Function.Parameter("Scale Factor", "l", 2))
+
+class GaussianFunction(Function):
+    name = "Gaussian"
+    def __init__(self) -> None:
+        expr = sympy.sympify("exp(-0.5 * ((x - mu) / sigma)**2)")
+        super().__init__(expr)
+        self.add_parameter(Function.Parameter("Mean", "mu", 0))
+        self.add_parameter(Function.Parameter("Standard Deviation", "sigma", 1))
+
+#class TriangleFunction(Function):
+#    def __init__(self) -> None:
+#        expr = sympy.sympify("triang(x)")
+#        super().__init__(lambda x: triang(x))
+
+class CustomFunction(Function):
+    def __init__(self) -> None:
+        super().__init__()
 
 class Option:
     """Defines options for the pulse parameters which can then be set accordingly."""
@@ -32,18 +135,25 @@ class NumericOption(Option):
         self.value = float(value)
 
 
-class WidgetSelectionOption(Option):
-    """Defines a widget selection option for a pulse parameter option."""
-
-    def __init__(self, widgets) -> None:
+class FunctionOption(Option):
+    """Defines a selection option for a pulse parameter option.
+    It takes different function objects."""
+    
+    def __init__(self, functions) -> None:
         super().__init__()
+        self.functions = functions
+        self.value = functions[0]
 
+    def set_value(self, value):
+        self.value = value
+       
 
 class TXPulse(BaseSpectrometerModel.PulseParameter):
     def __init__(self, name) -> None:
         super().__init__(name)
         self.add_option("TX Amplitude", NumericOption(0))
         self.add_option("TX Phase", NumericOption(0))
+        self.add_option("TX Pulse Shape", FunctionOption([RectFunction(), SincFunction(), GaussianFunction()]))
 
     def get_pixmap(self):
         self_path = Path(__file__).parent
@@ -53,19 +163,6 @@ class TXPulse(BaseSpectrometerModel.PulseParameter):
             image_path = self_path / "resources/pulseparameter/TXOff.png"
         pixmap = QPixmap(str(image_path))
         return pixmap
-
-    class RectPulse:
-        def __init__(self, name) -> None:
-            super().__init__(name)
-
-    class SincPulse:
-        def __init__(self, name) -> None:
-            super().__init__(name)
-
-    class GaussianPulse:
-        def __init__(self, name) -> None:
-            super().__init__(name)
-
 
 class RXReadout(BaseSpectrometerModel.PulseParameter):
     def __init__(self, name) -> None:

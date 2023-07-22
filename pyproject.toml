@@ -27,6 +27,9 @@ dependencies = [
     "matplotlib",
     "pyqt6",
     "NQRduck",
+    "sympy",
+    "numpy",
+    "scipy",
 ]
 
 [project.entry-points."nqrduck"]
