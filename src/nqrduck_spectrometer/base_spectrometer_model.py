@@ -31,6 +31,16 @@ class BaseSpectrometerModel(ModuleModel):
         
 
     class PulseParameter:
+        """A pulse parameter is a value that can be different for each event in a pulse sequence.
+        E.g. the transmit pulse power or the phase of the transmit pulse.
+        
+        Arguments:
+            name (str) -- The name of the pulse parameter
+            
+        Attributes:
+            name (str) -- The name of the pulse parameter
+            options (OrderedDict) -- The options of the pulse parameter
+        """
         def __init__(self, name):
             self.name = name
             self.options = OrderedDict()

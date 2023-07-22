@@ -2,26 +2,28 @@ from PyQt6.QtGui import QPixmap
 from pathlib import Path
 from .base_spectrometer_model import BaseSpectrometerModel
 
-class Option():
-    """Defines options for the pulse parameters which can then be set accordingly.
-    """
+
+class Option:
+    """Defines options for the pulse parameters which can then be set accordingly."""
+
     def set_value(self):
         raise NotImplementedError
 
 
 class BooleanOption(Option):
-    """Defines a boolean option for a pulse parameter option.
-    """
+    """Defines a boolean option for a pulse parameter option."""
+
     def __init__(self, value) -> None:
         super().__init__()
         self.value = value
 
     def set_value(self, value):
         self.value = value
-        
+
+
 class NumericOption(Option):
-    """Defines a numeric option for a pulse parameter option.
-    """
+    """Defines a numeric option for a pulse parameter option."""
+
     def __init__(self, value) -> None:
         super().__init__()
         self.value = value
@@ -29,9 +31,10 @@ class NumericOption(Option):
     def set_value(self, value):
         self.value = float(value)
 
+
 class WidgetSelectionOption(Option):
-    """Defines a widget selection option for a pulse parameter option.
-    """
+    """Defines a widget selection option for a pulse parameter option."""
+
     def __init__(self, widgets) -> None:
         super().__init__()
 
@@ -45,23 +48,24 @@ class TXPulse(BaseSpectrometerModel.PulseParameter):
     def get_pixmap(self):
         self_path = Path(__file__).parent
         if self.options["TX Amplitude"].value > 0:
-            image_path = self_path / "resources/pulseparameter/TX_Pulse.png"
+            image_path = self_path / "resources/pulseparameter/TXOn.png"
         else:
-            image_path = self_path / "resources/pulseparameter/NoPulse.png"
+            image_path = self_path / "resources/pulseparameter/TXOff.png"
         pixmap = QPixmap(str(image_path))
         return pixmap
 
-    class RectPulse():
-        def __init__(self, name) -> None:
-            super().__init__(name)
-  
-    class SincPulse():
+    class RectPulse:
         def __init__(self, name) -> None:
             super().__init__(name)
 
-    class GaussianPulse():
+    class SincPulse:
         def __init__(self, name) -> None:
             super().__init__(name)
+
+    class GaussianPulse:
+        def __init__(self, name) -> None:
+            super().__init__(name)
+
 
 class RXReadout(BaseSpectrometerModel.PulseParameter):
     def __init__(self, name) -> None:
@@ -80,8 +84,8 @@ class RXReadout(BaseSpectrometerModel.PulseParameter):
     def set_options(self, options):
         self.state = options
 
+
 class Gate(BaseSpectrometerModel.PulseParameter):
-    
     def __init__(self, name) -> None:
         super().__init__(name)
         self.add_option("Gate State", BooleanOption(False))
@@ -97,5 +101,3 @@ class Gate(BaseSpectrometerModel.PulseParameter):
 
     def set_options(self, options):
         self.state = options
-
-    

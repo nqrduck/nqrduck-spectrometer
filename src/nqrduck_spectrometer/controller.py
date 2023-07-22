@@ -17,7 +17,7 @@ class SpectrometerController(ModuleController):
         super().__init__(module)
 
     def _load_spectrometer_modules(self):
-        """This method loads the spectrometer modules and adds them to the spectrometer model."""
+        """This method loads the spectrometer (sub-)modules and adds them to the spectrometer model."""
         # Get the modules with entry points in the nqrduck group
         modules = MainController._get_modules()
         logger.debug("Found modules: %s", modules)
@@ -41,10 +41,13 @@ class SpectrometerController(ModuleController):
         self._module.view.create_menu_entry()
 
     def process_signals(self, key: str, value: None):
+        # This signal starts a measurement
         if key == "start_measurement":
             self.on_measurement_start()
+        # This signal sets the frequency
         elif key == "set_frequency":
             self.module.model.active_spectrometer.controller.set_frequency(value)
+        # This signal sets the number of averages
         elif key == "set_averages":
             self.module.model.active_spectrometer.controller.set_averages(value)
 
