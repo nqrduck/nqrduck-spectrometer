@@ -1,5 +1,6 @@
 import logging
 from collections import OrderedDict
+from nqrduck_spectrometer.pulseparameters import Option
 
 logger = logging.getLogger(__name__)
 
@@ -47,20 +48,22 @@ class PulseSequence:
                 for pulse_parameter_option in pulse_parameter_options.keys():
                     # This checks if the pulse paramter options are the same as the ones in the pulse sequence
                     if pulse_parameter_option == parameter["name"]:
-                        pulse_paramter_class = pulse_parameter_options[
+                        pulse_parameter_class = pulse_parameter_options[
                             pulse_parameter_option
                         ]
-                        obj.parameters[pulse_parameter_option] = pulse_paramter_class(
+                        obj.parameters[pulse_parameter_option] = pulse_parameter_class(
                             parameter["name"]
                         )
+                        # Delete the default instances of the pulse parameter options
+                        obj.parameters[pulse_parameter_option].options = []
                         for option in parameter["value"]:
-                            obj.parameters[pulse_parameter_option].options[
-                                option["name"]
-                            ].value = option["value"]
+                            obj.parameters[pulse_parameter_option].options.append(
+                                Option.from_json(option)
+                            )
 
             return obj
 
-    def dump_sequence_data(self):
+    def to_json(self):
         """Returns a dict with all the data in the pulse sequence
 
         Returns:
@@ -74,13 +77,8 @@ class PulseSequence:
             }
             for parameter in event.parameters.keys():
                 event_data["parameters"].append({"name": parameter, "value": []})
-                for option in event.parameters[parameter].options.keys():
-                    event_data["parameters"][-1]["value"].append(
-                        {
-                            "name": option,
-                            "value": event.parameters[parameter].options[option].value,
-                        }
-                    )
+                for option in event.parameters[parameter].options:
+                    event_data["parameters"][-1]["value"].append(option.to_json())
             data["events"].append(event_data)
         return data
 

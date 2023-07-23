@@ -43,16 +43,22 @@ class BaseSpectrometerModel(ModuleModel):
         """
         def __init__(self, name):
             self.name = name
-            self.options = OrderedDict()
+            self.options = list()
         
         def get_pixmap(self):
             raise NotImplementedError
         
-        def add_option(self, name, option):
-            self.options[name] = option
+        def add_option(self, option):
+            self.options.append(option)
 
         def get_options(self):
             return self.options
+        
+        def get_option_by_name(self, name : str) -> "Option":
+            for option in self.options:
+                if option.name == name:
+                    return option
+            raise ValueError("Option with name %s not found" % name)
         
 
     def __init__(self, module):
