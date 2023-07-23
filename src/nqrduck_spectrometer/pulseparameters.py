@@ -1,3 +1,4 @@
+import logging
 import numpy as np
 import sympy
 from pathlib import Path
@@ -5,6 +6,8 @@ from PyQt6.QtGui import QPixmap
 from nqrduck.contrib.mplwidget import MplWidget
 from nqrduck.helpers.signalprocessing import SignalProcessing as sp
 from .base_spectrometer_model import BaseSpectrometerModel
+
+logger = logging.getLogger(__name__)
 
 class Function():
     name: str
@@ -31,8 +34,12 @@ class Function():
     def evaluate(self, pulse_length: float) -> np.ndarray:
         """Evaluates the function for the given pulse length."""
         n = int(pulse_length / self.resolution)
-        t = np.linspace(-np.pi, np.pi, n)
+        t = np.linspace(self.start_x, self.end_x, n)
         x = sympy.symbols("x")
+
+        # If the expression is a string, convert it to a sympy expression
+        if isinstance(self.expr, str):
+            self.expr = sympy.sympify(self.expr)
 
         found_variables = dict()
         # Create a dictionary of the parameters and their values
@@ -69,12 +76,17 @@ class Function():
     def add_parameter(self, parameter : "Function.Parameter"):
         self.parameters.append(parameter)
 
+
     class Parameter:
         def __init__(self, name : str, symbol : str, value : float) -> None:
             self.name = name
             self.symbol = symbol
             self.value = value
             self.default = value
+
+        def set_value(self, value : float):
+            self.value = value
+            logger.debug("Parameter %s set to %s", self.name, self.value)
 
 class RectFunction(Function):
     name = "Rectangular"
@@ -88,6 +100,8 @@ class SincFunction(Function):
         expr = sympy.sympify("sin(x * l)/ (x * l)")
         super().__init__(expr)
         self.add_parameter(Function.Parameter("Scale Factor", "l", 2))
+        self.start_x = -np.pi
+        self.end_x = np.pi
 
 class GaussianFunction(Function):
     name = "Gaussian"
