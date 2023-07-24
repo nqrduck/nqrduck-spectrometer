@@ -21,7 +21,7 @@ class Function:
     def __init__(self, expr) -> None:
         self.parameters = []
         self.expr = expr
-        self.resolution = 22e-9 * 16  # 1e-6
+        self.resolution = 16/30.72e6
         self.start_x = -1
         self.end_x = 1
 
@@ -73,6 +73,10 @@ class Function:
         mpl_widget.canvas.ax.set_xlabel("Time in s")
         mpl_widget.canvas.ax.set_ylabel("Magnitude")
         return mpl_widget
+    
+    def get_pulse_amplitude(self, pulse_length: float) -> np.array:
+        """Returns the pulse amplitude in the time domain."""
+        return self.evaluate(pulse_length)
 
     def add_parameter(self, parameter: "Function.Parameter"):
         self.parameters.append(parameter)
