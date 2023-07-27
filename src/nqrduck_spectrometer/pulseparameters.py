@@ -21,7 +21,7 @@ class Function:
     def __init__(self, expr) -> None:
         self.parameters = []
         self.expr = expr
-        self.resolution = 16/30.72e6
+        self.resolution = 1/30.72e6
         self.start_x = -1
         self.end_x = 1
 
@@ -69,7 +69,7 @@ class Function:
     def time_domain_plot(self, pulse_length: float) -> MplWidget:
         mpl_widget = MplWidget()
         td = self.get_time_points(pulse_length)
-        mpl_widget.canvas.ax.plot(td, self.evaluate(pulse_length))
+        mpl_widget.canvas.ax.plot(td, abs(self.evaluate(pulse_length)))
         mpl_widget.canvas.ax.set_xlabel("Time in s")
         mpl_widget.canvas.ax.set_ylabel("Magnitude")
         return mpl_widget
