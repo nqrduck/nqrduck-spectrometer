@@ -102,3 +102,16 @@ class PulseSequence:
             obj.events.append(cls.Event.load_event(event_data, pulse_parameter_options))
 
         return obj
+    
+    class Variable:
+        """ A variable is a parameter that can be used within a pulsesequence as a placeholder.
+        For example the event duration a Variable with name a can be set. This variable can then be set to a list of different values.
+        On execution of the pulse sequence the event duration will be set to the first value in the list. 
+        Then the pulse sequence will be executed with the second value of the list. This is repeated until the pulse sequence has
+        been executed with all values in the list."""
+        pass
+
+    class VariableGroup:
+        """ Variables can be grouped together. 
+        If we have groups a and b the pulse sequence will be executed for all combinations of variables in a and b."""
+        pass

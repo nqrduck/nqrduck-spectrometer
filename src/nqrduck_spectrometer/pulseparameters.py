@@ -21,7 +21,7 @@ class Function:
     def __init__(self, expr) -> None:
         self.parameters = []
         self.expr = expr
-        self.resolution = 16/30.72e6
+        self.resolution = 1/30.72e6
         self.start_x = -1
         self.end_x = 1
 
@@ -37,10 +37,6 @@ class Function:
         n = int(pulse_length / self.resolution)
         t = np.linspace(self.start_x, self.end_x, n)
         x = sympy.symbols("x")
-
-        # If the expression is a string, convert it to a sympy expression
-        if isinstance(self.expr, str):
-            self.expr = sympy.sympify(self.expr)
 
         found_variables = dict()
         # Create a dictionary of the parameters and their values
@@ -110,6 +106,22 @@ class Function:
             obj.add_parameter(Function.Parameter.from_json(parameter))
 
         return obj
+    
+    @property
+    def expr(self):
+        return self._expr
+    
+    @expr.setter
+    def expr(self, expr):
+        if isinstance(expr, str):
+            try:
+                self._expr = sympy.sympify(expr)
+            except:
+                logger.error("Could not convert %s to a sympy expression", expr)
+                raise SyntaxError("Could not convert %s to a sympy expression" % expr)
+        elif isinstance(expr, sympy.Expr):
+            self._expr = expr
+
 
     class Parameter:
         def __init__(self, name: str, symbol: str, value: float) -> None:
