@@ -1,5 +1,6 @@
 import logging
 from collections import OrderedDict
+from nqrduck.helpers.unitconverter import UnitConverter
 from nqrduck_spectrometer.pulseparameters import Option
 
 logger = logging.getLogger(__name__)
@@ -18,7 +19,7 @@ class PulseSequence:
     class Event:
         """An event is a part of a pulse sequence. It has a name and a duration and different parameters that have to be set."""
 
-        def __init__(self, name: str, duration: float) -> None:
+        def __init__(self, name: str, duration: str) -> None:
             self.parameters = OrderedDict()
             self.name = name
             self.duration = duration
@@ -26,7 +27,7 @@ class PulseSequence:
         def add_parameter(self, parameter) -> None:
             self.parameters.append(parameter)
 
-        def on_duration_changed(self, duration: float) -> None:
+        def on_duration_changed(self, duration: str) -> None:
             logger.debug("Duration of event %s changed to %s", self.name, duration)
             self.duration = duration
 
@@ -68,10 +69,10 @@ class PulseSequence:
             return self._duration
         
         @duration.setter
-        def duration(self, duration : float):
+        def duration(self, duration : str):
             # Duration needs to be a positive number
             try:
-                duration = float(duration)
+                duration = UnitConverter.to_decimal(duration)
             except ValueError:
                 raise ValueError("Duration needs to be a number")
             if duration < 0:
