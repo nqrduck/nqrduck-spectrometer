@@ -60,6 +60,7 @@ class Function:
         mpl_widget.canvas.ax.plot(xdf, ydf)
         mpl_widget.canvas.ax.set_xlabel("Frequency in Hz")
         mpl_widget.canvas.ax.set_ylabel("Magnitude")
+        mpl_widget.canvas.ax.grid(True)
         return mpl_widget
 
     def time_domain_plot(self, pulse_length: float) -> MplWidget:
@@ -68,6 +69,7 @@ class Function:
         mpl_widget.canvas.ax.plot(td, self.evaluate(pulse_length))
         mpl_widget.canvas.ax.set_xlabel("Time in s")
         mpl_widget.canvas.ax.set_ylabel("Magnitude")
+        mpl_widget.canvas.ax.grid(True)
         return mpl_widget
     
     def get_pulse_amplitude(self, pulse_length: float) -> np.array:

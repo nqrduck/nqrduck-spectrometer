@@ -62,6 +62,23 @@ class PulseSequence:
                             )
 
             return obj
+        
+        @property
+        def duration(self):
+            return self._duration
+        
+        @duration.setter
+        def duration(self, duration : float):
+            # Duration needs to be a positive number
+            try:
+                duration = float(duration)
+            except ValueError:
+                raise ValueError("Duration needs to be a number")
+            if duration < 0:
+                raise ValueError("Duration needs to be a positive number")
+            
+            self._duration = duration
+            
 
     def to_json(self):
         """Returns a dict with all the data in the pulse sequence
