@@ -163,6 +163,16 @@ class Function:
         except:
             logger.error("Could not convert %s to a float", end_x)
             raise SyntaxError("Could not convert %s to a float" % end_x)
+        
+    def get_pixmap(self):
+        """This is the default pixmap for every function. If one wants to have a custom pixmap, this method has to be overwritten.
+        
+        Returns:
+            QPixmap -- The default pixmap for every function"""
+        self_path = Path(__file__).parent
+        image_path = self_path / "resources/pulseparameter/TXCustom.png"
+        pixmap = QPixmap(str(image_path))
+        return pixmap
 
 
     class Parameter:
@@ -197,6 +207,12 @@ class RectFunction(Function):
         expr = sympy.sympify("1")
         super().__init__(expr)
 
+    def get_pixmap(self):
+        self_path = Path(__file__).parent
+        image_path = self_path / "resources/pulseparameter/TXRect.png"
+        pixmap = QPixmap(str(image_path))
+        return pixmap
+
 
 class SincFunction(Function):
     name = "Sinc"
@@ -207,6 +223,12 @@ class SincFunction(Function):
         self.add_parameter(Function.Parameter("Scale Factor", "l", 2))
         self.start_x = -np.pi
         self.end_x = np.pi
+        
+    def get_pixmap(self):
+        self_path = Path(__file__).parent
+        image_path = self_path / "resources/pulseparameter/TXSinc.png"
+        pixmap = QPixmap(str(image_path))
+        return pixmap
 
 
 class GaussianFunction(Function):
@@ -219,6 +241,12 @@ class GaussianFunction(Function):
         self.add_parameter(Function.Parameter("Standard Deviation", "sigma", 1))
         self.start_x = -np.pi
         self.end_x = np.pi
+
+    def get_pixmap(self):
+        self_path = Path(__file__).parent
+        image_path = self_path / "resources/pulseparameter/TXGauss.png"
+        pixmap = QPixmap(str(image_path))
+        return pixmap
 
 
 # class TriangleFunction(Function):
@@ -233,7 +261,6 @@ class CustomFunction(Function):
     def __init__(self) -> None:
         expr = sympy.sympify(" 2 * x**2 + 3 * x + 1")
         super().__init__(expr)
-
 
 class Option:
     """Defines options for the pulse parameters which can then be set accordingly."""
@@ -306,6 +333,9 @@ class FunctionOption(Option):
         obj = cls(data["name"], functions)
         obj.value = Function.from_json(data["value"])
         return obj
+    
+    def get_pixmap(self):
+        return self.value.get_pixmap()
 
 
 class TXPulse(BaseSpectrometerModel.PulseParameter):
@@ -318,17 +348,17 @@ class TXPulse(BaseSpectrometerModel.PulseParameter):
         self.add_option(NumericOption(self.RELATIVE_AMPLITUDE, 0))
         self.add_option(NumericOption(self.TX_PHASE, 0))
         self.add_option(
-            FunctionOption(self.TX_PULSE_SHAPE, [RectFunction(), SincFunction(), GaussianFunction()]),
+            FunctionOption(self.TX_PULSE_SHAPE, [RectFunction(), SincFunction(), GaussianFunction(), CustomFunction()]),
         )
 
     def get_pixmap(self):
         self_path = Path(__file__).parent
         if self.get_option_by_name(self.RELATIVE_AMPLITUDE).value > 0:
-            image_path = self_path / "resources/pulseparameter/TXOn.png"
+            return self.get_option_by_name(self.TX_PULSE_SHAPE).get_pixmap()
         else:
             image_path = self_path / "resources/pulseparameter/TXOff.png"
-        pixmap = QPixmap(str(image_path))
-        return pixmap
+            pixmap = QPixmap(str(image_path))
+            return pixmap
 
 
 class RXReadout(BaseSpectrometerModel.PulseParameter):
