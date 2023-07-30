@@ -1,5 +1,7 @@
 import logging
+from pathlib import Path
 from PyQt6.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QSizePolicy, QSpacerItem, QVBoxLayout
+from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt, pyqtSlot
 from nqrduck.module.module_view import ModuleView
 
@@ -54,10 +56,23 @@ class BaseSpectrometerView(ModuleView):
                 layout = QHBoxLayout()
                 # Connect the editingFinished signal to the on_value_changed slot of the setting
                 line_edit.editingFinished.connect(lambda x=line_edit, s=setting: s.on_value_changed(x.text()))
+                # Add a icon that can be used as a tooltip
+                if setting.description is not None:
+                    logger.debug("Adding tooltip to setting: %s", setting.name)
+                    self_path = Path(__file__).parent
+                    tooltip_icon_path = self_path / "resources/icons" / "QuestionMark_16x16.png"
+                    icon = QIcon(str(tooltip_icon_path))
+                    icon_label = QLabel()
+                    icon_label.setPixmap(icon.pixmap(icon.availableSizes()[0]))
+                    icon_label.setFixedSize(icon.availableSizes()[0])
+
+                    icon_label.setToolTip(setting.description)
+                    
                 # Add the label and the line edit to the layout
                 layout.addItem(spacer)
                 layout.addWidget(setting_label)
                 layout.addWidget(line_edit)
+                layout.addWidget(icon_label)
                 layout.addStretch(1)
                 # Add the layout to the vertical layout of the widget
                 category_layout.addLayout(layout)
