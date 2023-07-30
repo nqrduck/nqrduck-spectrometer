@@ -1,5 +1,6 @@
 import logging
 from collections import OrderedDict
+from nqrduck.helpers.unitconverter import UnitConverter
 from nqrduck_spectrometer.pulseparameters import Option
 
 logger = logging.getLogger(__name__)
@@ -18,7 +19,7 @@ class PulseSequence:
     class Event:
         """An event is a part of a pulse sequence. It has a name and a duration and different parameters that have to be set."""
 
-        def __init__(self, name: str, duration: float) -> None:
+        def __init__(self, name: str, duration: str) -> None:
             self.parameters = OrderedDict()
             self.name = name
             self.duration = duration
@@ -26,7 +27,7 @@ class PulseSequence:
         def add_parameter(self, parameter) -> None:
             self.parameters.append(parameter)
 
-        def on_duration_changed(self, duration: float) -> None:
+        def on_duration_changed(self, duration: str) -> None:
             logger.debug("Duration of event %s changed to %s", self.name, duration)
             self.duration = duration
 
@@ -62,6 +63,23 @@ class PulseSequence:
                             )
 
             return obj
+        
+        @property
+        def duration(self):
+            return self._duration
+        
+        @duration.setter
+        def duration(self, duration : str):
+            # Duration needs to be a positive number
+            try:
+                duration = UnitConverter.to_decimal(duration)
+            except ValueError:
+                raise ValueError("Duration needs to be a number")
+            if duration < 0:
+                raise ValueError("Duration needs to be a positive number")
+            
+            self._duration = duration
+            
 
     def to_json(self):
         """Returns a dict with all the data in the pulse sequence
@@ -102,3 +120,16 @@ class PulseSequence:
             obj.events.append(cls.Event.load_event(event_data, pulse_parameter_options))
 
         return obj
+    
+    class Variable:
+        """ A variable is a parameter that can be used within a pulsesequence as a placeholder.
+        For example the event duration a Variable with name a can be set. This variable can then be set to a list of different values.
+        On execution of the pulse sequence the event duration will be set to the first value in the list. 
+        Then the pulse sequence will be executed with the second value of the list. This is repeated until the pulse sequence has
+        been executed with all values in the list."""
+        pass
+
+    class VariableGroup:
+        """ Variables can be grouped together. 
+        If we have groups a and b the pulse sequence will be executed for all combinations of variables in a and b."""
+        pass

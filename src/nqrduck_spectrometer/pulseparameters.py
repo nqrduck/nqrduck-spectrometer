@@ -1,6 +1,7 @@
 import logging
 import numpy as np
 import sympy
+from decimal import Decimal
 from pathlib import Path
 from PyQt6.QtGui import QPixmap
 from nqrduck.contrib.mplwidget import MplWidget
@@ -14,33 +15,29 @@ class Function:
     name: str
     parameters: list
     expression: str | sympy.Expr
-    resolution: float
+    resolution: Decimal
     start_x: float
     end_x: float
 
     def __init__(self, expr) -> None:
         self.parameters = []
         self.expr = expr
-        self.resolution = 1/30.72e6
+        self.resolution = Decimal(1/30.72e6)
         self.start_x = -1
         self.end_x = 1
 
-    def get_time_points(self, pulse_length: float) -> np.ndarray:
+    def get_time_points(self, pulse_length: Decimal) -> np.ndarray:
         """Returns the time domain points for the function with the given pulse length."""
         # Get the time domain points
         n = int(pulse_length / self.resolution)
-        t = np.linspace(0, pulse_length, n)
+        t = np.linspace(0, float(pulse_length), n)
         return t
 
-    def evaluate(self, pulse_length: float) -> np.ndarray:
+    def evaluate(self, pulse_length: Decimal) -> np.ndarray:
         """Evaluates the function for the given pulse length."""
         n = int(pulse_length / self.resolution)
         t = np.linspace(self.start_x, self.end_x, n)
         x = sympy.symbols("x")
-
-        # If the expression is a string, convert it to a sympy expression
-        if isinstance(self.expr, str):
-            self.expr = sympy.sympify(self.expr)
 
         found_variables = dict()
         # Create a dictionary of the parameters and their values
@@ -56,7 +53,7 @@ class Function:
 
         return f(t)
 
-    def frequency_domain_plot(self, pulse_length: float) -> MplWidget:
+    def frequency_domain_plot(self, pulse_length: Decimal) -> MplWidget:
         mpl_widget = MplWidget()
         td = self.get_time_points(pulse_length)
         yd = self.evaluate(pulse_length)
@@ -64,17 +61,19 @@ class Function:
         mpl_widget.canvas.ax.plot(xdf, ydf)
         mpl_widget.canvas.ax.set_xlabel("Frequency in Hz")
         mpl_widget.canvas.ax.set_ylabel("Magnitude")
+        mpl_widget.canvas.ax.grid(True)
         return mpl_widget
 
-    def time_domain_plot(self, pulse_length: float) -> MplWidget:
+    def time_domain_plot(self, pulse_length: Decimal) -> MplWidget:
         mpl_widget = MplWidget()
         td = self.get_time_points(pulse_length)
         mpl_widget.canvas.ax.plot(td, abs(self.evaluate(pulse_length)))
         mpl_widget.canvas.ax.set_xlabel("Time in s")
         mpl_widget.canvas.ax.set_ylabel("Magnitude")
+        mpl_widget.canvas.ax.grid(True)
         return mpl_widget
     
-    def get_pulse_amplitude(self, pulse_length: float) -> np.array:
+    def get_pulse_amplitude(self, pulse_length: Decimal) -> np.array:
         """Returns the pulse amplitude in the time domain."""
         return self.evaluate(pulse_length)
 
@@ -110,6 +109,61 @@ class Function:
             obj.add_parameter(Function.Parameter.from_json(parameter))
 
         return obj
+    
+    @property
+    def expr(self):
+        return self._expr
+    
+    @expr.setter
+    def expr(self, expr):
+        if isinstance(expr, str):
+            try:
+                self._expr = sympy.sympify(expr)
+            except:
+                logger.error("Could not convert %s to a sympy expression", expr)
+                raise SyntaxError("Could not convert %s to a sympy expression" % expr)
+        elif isinstance(expr, sympy.Expr):
+            self._expr = expr
+
+    @property
+    def resolution(self):
+        """ The resolution of the function in seconds."""
+        return self._resolution
+    
+    @resolution.setter
+    def resolution(self, resolution):
+        try:
+            self._resolution = Decimal(resolution)
+        except:
+            logger.error("Could not convert %s to a decimal", resolution)
+            raise SyntaxError("Could not convert %s to a decimal" % resolution)
+        
+    @property
+    def start_x(self):
+        """ The x value where the evalution of the function starts."""
+        return self._start_x
+    
+    @start_x.setter
+    def start_x(self, start_x):
+        try:
+            self._start_x = float(start_x)
+        except:
+            logger.error("Could not convert %s to a float", start_x)
+            raise SyntaxError("Could not convert %s to a float" % start_x)
+        
+    @property
+    def end_x(self):
+        """ The x value where the evalution of the function ends."""
+        return self._end_x
+    
+    @end_x.setter
+    def end_x(self, end_x):
+        try:
+            self._end_x = float(end_x)
+        except:
+            logger.error("Could not convert %s to a float", end_x)
+            raise SyntaxError("Could not convert %s to a float" % end_x)
+
 
     class Parameter:
         def __init__(self, name: str, symbol: str, value: float) -> None:
