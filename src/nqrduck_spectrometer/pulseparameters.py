@@ -52,6 +52,11 @@ class Function:
         f = sympy.lambdify([x], final_expr, "numpy")
 
         return f(t)
+    
+    def get_tdx(self, pulse_length : float) -> None:
+        n = int(pulse_length / self.resolution)
+        t = np.linspace(self.start_x, self.end_x, n)
+        return t
 
     def frequency_domain_plot(self, pulse_length: Decimal) -> MplWidget:
         mpl_widget = MplWidget()
