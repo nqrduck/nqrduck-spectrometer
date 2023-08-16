@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QSizePolicy
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt, pyqtSlot
 from nqrduck.module.module_view import ModuleView
+from nqrduck.assets.icons import Logos
 
 logger = logging.getLogger(__name__)
 
@@ -60,8 +61,7 @@ class BaseSpectrometerView(ModuleView):
                 if setting.description is not None:
                     logger.debug("Adding tooltip to setting: %s", setting.name)
                     self_path = Path(__file__).parent
-                    tooltip_icon_path = self_path / "resources/icons" / "QuestionMark_16x16.png"
-                    icon = QIcon(str(tooltip_icon_path))
+                    icon = Logos.QuestionMark_16x16()
                     icon_label = QLabel()
                     icon_label.setPixmap(icon.pixmap(icon.availableSizes()[0]))
                     icon_label.setFixedSize(icon.availableSizes()[0])

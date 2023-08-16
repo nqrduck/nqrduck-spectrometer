@@ -6,6 +6,7 @@ from pathlib import Path
 from PyQt6.QtGui import QPixmap
 from nqrduck.contrib.mplwidget import MplWidget
 from nqrduck.helpers.signalprocessing import SignalProcessing as sp
+from nqrduck.assets.icons import PulseParamters
 from .base_spectrometer_model import BaseSpectrometerModel
 
 logger = logging.getLogger(__name__)
@@ -174,9 +175,7 @@ class Function:
         
         Returns:
             QPixmap -- The default pixmap for every function"""
-        self_path = Path(__file__).parent
-        image_path = self_path / "resources/pulseparameter/TXCustom.png"
-        pixmap = QPixmap(str(image_path))
+        pixmap = PulseParamters.TXCustom()
         return pixmap
 
 
@@ -213,9 +212,7 @@ class RectFunction(Function):
         super().__init__(expr)
 
     def get_pixmap(self):
-        self_path = Path(__file__).parent
-        image_path = self_path / "resources/pulseparameter/TXRect.png"
-        pixmap = QPixmap(str(image_path))
+        pixmap = PulseParamters.TXRect()
         return pixmap
 
 
@@ -230,9 +227,7 @@ class SincFunction(Function):
         self.end_x = np.pi
         
     def get_pixmap(self):
-        self_path = Path(__file__).parent
-        image_path = self_path / "resources/pulseparameter/TXSinc.png"
-        pixmap = QPixmap(str(image_path))
+        pixmap = PulseParamters.TXSinc()
         return pixmap
 
 
@@ -248,9 +243,7 @@ class GaussianFunction(Function):
         self.end_x = np.pi
 
     def get_pixmap(self):
-        self_path = Path(__file__).parent
-        image_path = self_path / "resources/pulseparameter/TXGauss.png"
-        pixmap = QPixmap(str(image_path))
+        pixmap = PulseParamters.TXGauss()
         return pixmap
 
 
@@ -357,12 +350,11 @@ class TXPulse(BaseSpectrometerModel.PulseParameter):
         )
 
     def get_pixmap(self):
-        self_path = Path(__file__).parent
+
         if self.get_option_by_name(self.RELATIVE_AMPLITUDE).value > 0:
             return self.get_option_by_name(self.TX_PULSE_SHAPE).get_pixmap()
         else:
-            image_path = self_path / "resources/pulseparameter/TXOff.png"
-            pixmap = QPixmap(str(image_path))
+            pixmap = PulseParamters.TXOff()
             return pixmap
 
 
@@ -373,12 +365,11 @@ class RXReadout(BaseSpectrometerModel.PulseParameter):
         self.add_option(BooleanOption(self.RX, False))
 
     def get_pixmap(self):
-        self_path = Path(__file__).parent
+
         if self.get_option_by_name(self.RX).value == False:
-            image_path = self_path / "resources/pulseparameter/RXOff.png"
+            pixmap = PulseParamters.RXOff()
         else:
-            image_path = self_path / "resources/pulseparameter/RXOn.png"
-        pixmap = QPixmap(str(image_path))
+            pixmap = PulseParamters.RXOn()
         return pixmap
 
 
@@ -389,10 +380,9 @@ class Gate(BaseSpectrometerModel.PulseParameter):
         self.add_option(BooleanOption(self.GATE_STATE, False))
 
     def get_pixmap(self):
-        self_path = Path(__file__).parent
+
         if self.get_option_by_name(self.GATE_STATE).value == False:
-            image_path = self_path / "resources/pulseparameter/GateOff.png"
+            pixmap = PulseParamters.GateOff()
         else:
-            image_path = self_path / "resources/pulseparameter/GateOn.png"
-        pixmap = QPixmap(str(image_path))
+            pixmap = PulseParamters.GateOn()
         return pixmap
