@@ -11,12 +11,10 @@ class SpectrometerController(ModuleController):
     """This class is the controller for the spectrometer module."""
 
     def __init__(self, module):
-        """This method initializes the controller.
-        :param module: The module that this controller belongs to.
-        """
+        """This method initializes the controller."""
         super().__init__(module)
 
-    def _load_spectrometer_modules(self):
+    def _load_spectrometer_modules(self) -> None:
         """This method loads the spectrometer (sub-)modules and adds them to the spectrometer model."""
         # Get the modules with entry points in the nqrduck group
         modules = MainController._get_modules()
@@ -40,7 +38,15 @@ class SpectrometerController(ModuleController):
 
         self._module.view.create_menu_entry()
 
-    def process_signals(self, key: str, value: None):
+    def process_signals(self, key: str, value: object) -> None:
+        """This method processes the signals from the nqrduck module.
+        It is called by the nqrduck module when a signal is emitted.
+        It then calls the corresponding method of the spectrometer model.
+
+        Args:
+            key (str): Name of the signal.
+            value (object): Value of the signal.
+        """
         # This signal starts a measurement
         if key == "start_measurement":
             self.on_measurement_start()
@@ -51,7 +57,7 @@ class SpectrometerController(ModuleController):
         elif key == "set_averages":
             self.module.model.active_spectrometer.controller.set_averages(value)
 
-    def on_loading(self):
+    def on_loading(self) -> None:
         """This method is called when the module is loaded.
         It connects the signals from the spectrometer model to the view.
         """
@@ -63,7 +69,7 @@ class SpectrometerController(ModuleController):
         )
         self._load_spectrometer_modules()
 
-    def on_measurement_start(self):
+    def on_measurement_start(self) -> None:
         """This method is called when a measurement is started.
         It calls the on_measurement_start method of the active spectrometer.
         """
