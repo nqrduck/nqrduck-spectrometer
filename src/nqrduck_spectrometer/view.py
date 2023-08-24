@@ -115,7 +115,7 @@ class SpectrometerView(ModuleView):
         last_added_action = self._actions[list(self._actions.keys())[-1]]
         last_added_action.setChecked(True)
 
-        self.add_menubar_item.emit("Hardware", list(self._actions.values()))
+        self.add_menubar_item.emit("Spectrometer", list(self._actions.values()))
 
     @pyqtSlot(str)
     def on_menu_button_clicked(self, spectrometer_name):

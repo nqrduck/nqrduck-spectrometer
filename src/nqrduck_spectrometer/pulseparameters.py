@@ -41,16 +41,19 @@ class Function:
         t = np.linspace(0, float(pulse_length), n)
         return t
 
-    def evaluate(self, pulse_length: Decimal) -> np.ndarray:
+    def evaluate(self, pulse_length: Decimal, resolution : Decimal = None) -> np.ndarray:
         """Evaluates the function for the given pulse length.
 
         Args:
             pulse_length (Decimal): The pulse length in seconds.
+            resolution (Decimal, optional): The resolution of the function in seconds. Defaults to None.
 
         Returns:
             np.ndarray: The evaluated function.
         """
-        n = int(pulse_length / self.resolution)
+        if resolution is None:
+            resolution = self.resolution
+        n = int(pulse_length / resolution)
         t = np.linspace(self.start_x, self.end_x, n)
         x = sympy.symbols("x")
 
@@ -117,16 +120,17 @@ class Function:
         mpl_widget.canvas.ax.grid(True)
         return mpl_widget
 
-    def get_pulse_amplitude(self, pulse_length: Decimal) -> np.array:
+    def get_pulse_amplitude(self, pulse_length: Decimal, resolution : Decimal = None) -> np.array:
         """Returns the pulse amplitude in the time domain.
 
         Args:
             pulse_length (Decimal): The pulse length in seconds.
+            resolution (Decimal, optional): The resolution of the function in seconds. Defaults to None.
 
         Returns:
             np.array: The pulse amplitude.
         """
-        return self.evaluate(pulse_length)
+        return self.evaluate(pulse_length, resolution=resolution)
 
     def add_parameter(self, parameter: "Function.Parameter") -> None:
         """Adds a parameter to the function.
