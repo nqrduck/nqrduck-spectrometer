@@ -127,9 +127,47 @@ class PulseSequence:
         On execution of the pulse sequence the event duration will be set to the first value in the list. 
         Then the pulse sequence will be executed with the second value of the list. This is repeated until the pulse sequence has
         been executed with all values in the list."""
-        pass
+        
+        @property
+        def name(self):
+            return self._name
+        
+        @name.setter
+        def name(self, name : str):
+            if not isinstance(name, str):
+                raise TypeError("Name needs to be a string")
+            self._name = name
+        
+        @property
+        def values(self):
+            return self._values
+        
+        @values.setter
+        def values(self, values : list):
+            if not isinstance(values, list):
+                raise TypeError("Values needs to be a list")
+            self._values = values
 
     class VariableGroup:
         """ Variables can be grouped together. 
         If we have groups a and b the pulse sequence will be executed for all combinations of variables in a and b."""
-        pass
+        
+        @property
+        def name(self):
+            return self._name
+        
+        @name.setter
+        def name(self, name : str):
+            if not isinstance(name, str):
+                raise TypeError("Name needs to be a string")
+            self._name = name
+
+        @property
+        def variables(self):
+            return self._variables
+        
+        @variables.setter
+        def variables(self, variables : list):
+            if not isinstance(variables, list):
+                raise TypeError("Variables needs to be a list")
+            self._variables = variables
