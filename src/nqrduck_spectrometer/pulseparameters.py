@@ -97,7 +97,7 @@ class Function:
         td = self.get_time_points(pulse_length)
         yd = self.evaluate(pulse_length)
         xdf, ydf = sp.fft(td, yd)
-        mpl_widget.canvas.ax.plot(xdf, ydf)
+        mpl_widget.canvas.ax.plot(xdf, abs(ydf))
         mpl_widget.canvas.ax.set_xlabel("Frequency in Hz")
         mpl_widget.canvas.ax.set_ylabel("Magnitude")
         mpl_widget.canvas.ax.grid(True)
