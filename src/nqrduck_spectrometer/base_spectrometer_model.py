@@ -29,6 +29,12 @@ class BaseSpectrometerModel(ModuleModel):
         def get_setting(self):
             return float(self.value)
         
+        def get_setting_by_name(self, name : str) -> "Setting":
+            for setting in self.settings:
+                if setting.name == name:
+                    return setting
+            raise ValueError("Setting with name %s not found" % name)
+        
 
     class PulseParameter:
         """A pulse parameter is a value that can be different for each event in a pulse sequence.
