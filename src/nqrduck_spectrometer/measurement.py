@@ -13,15 +13,17 @@ class Measurement():
         tdy (np.array): Time axis for the y axis of the measurement data.
         target_frequency (float): Target frequency of the measurement.
         frequency_shift (float): Frequency shift of the measurement.
+        IF_frequency (float): Intermediate frequency of the measurement.
         xf (np.array): Frequency axis for the x axis of the measurement data.
         yf (np.array): Frequency axis for the y axis of the measurement data.
     """
 
-    def __init__(self, tdx, tdy, target_frequency, frequency_shift : float = 0) -> None:
+    def __init__(self, tdx, tdy, target_frequency, frequency_shift : float = 0, IF_frequency : float = 0) -> None:
         self.tdx = tdx
         self.tdy = tdy
         self.target_frequency = target_frequency
         self.fdx, self.fdy = sp.fft(tdx, tdy, frequency_shift)
+        self.IF_frequency = IF_frequency
 
     # Measurement data
     @property
