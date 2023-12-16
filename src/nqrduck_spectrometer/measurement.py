@@ -31,7 +31,7 @@ class Measurement():
     def to_json(self):
         """Converts the measurement to a json-compatible format."""
         return {
-            "tdx": [[x.real, x.imag] for x in self.tdx], # Convert complex numbers to list
+            "tdx": self.tdx.tolist(),
             "tdy": [[x.real, x.imag] for x in self.tdy], # Convert complex numbers to list
             "target_frequency": self.target_frequency,
             "IF_frequency": self.IF_frequency
@@ -40,13 +40,12 @@ class Measurement():
     @classmethod
     def from_json(cls, json):
         """Converts the json format to a measurement."""
-        tdx = np.array([complex(x[0], x[1]) for x in json["tdx"]])
         tdy = np.array([complex(y[0], y[1]) for y in json["tdy"]])
         return cls(
-            tdx,
+            np.array(json["tdx"]),
             tdy,
-            json["target_frequency"],
-            json["IF_frequency"]
+            target_frequency = json["target_frequency"],
+            IF_frequency = json["IF_frequency"]
         )
 
     # Measurement data
