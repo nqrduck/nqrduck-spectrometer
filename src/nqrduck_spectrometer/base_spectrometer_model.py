@@ -28,8 +28,6 @@ class BaseSpectrometerModel(ModuleModel):
 
         def get_setting(self):
             return float(self.value)
-        
-
     class PulseParameter:
         """A pulse parameter is a value that can be different for each event in a pulse sequence.
         E.g. the transmit pulse power or the phase of the transmit pulse.

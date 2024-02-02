@@ -24,6 +24,9 @@ class SpectrometerModel(ModuleModel):
     def active_spectrometer(self, value):
         self._active_spectrometer = value
         self.active_spectrometer_changed.emit(value)
+        spectrometer_module_name = value.model.toolbar_name
+        logger.debug("Active spectrometer changed to %s", spectrometer_module_name)
+        self.module.nqrduck_signal.emit("active_spectrometer_changed", spectrometer_module_name)
     
     @property
     def available_spectrometers(self):
