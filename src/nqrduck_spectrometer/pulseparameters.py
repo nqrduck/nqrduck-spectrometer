@@ -436,6 +436,7 @@ class FunctionOption(Option):
 
 
 class TXPulse(BaseSpectrometerModel.PulseParameter):
+    """ Basic TX Pulse Parameter. It includes options for the relative amplitude, the phase and the pulse shape."""
     RELATIVE_AMPLITUDE = "Relative TX Amplitude"
     TX_PHASE = "TX Phase"
     TX_PULSE_SHAPE = "TX Pulse Shape"
@@ -460,6 +461,7 @@ class TXPulse(BaseSpectrometerModel.PulseParameter):
 
 
 class RXReadout(BaseSpectrometerModel.PulseParameter):
+    """Basic PulseParameter for the RX Readout. It includes an option for the RX Readout state."""
     RX = "RX"
 
     def __init__(self, name) -> None:
