@@ -29,7 +29,11 @@ class Measurement():
     # Data saving and loading
 
     def to_json(self):
-        """Converts the measurement to a json-compatible format."""
+        """Converts the measurement to a json-compatible format.
+        
+        Returns:
+            dict -- The measurement in json-compatible format.
+        """
         return {
             "tdx": self.tdx.tolist(),
             "tdy": [[x.real, x.imag] for x in self.tdy], # Convert complex numbers to list
@@ -39,7 +43,14 @@ class Measurement():
     
     @classmethod
     def from_json(cls, json):
-        """Converts the json format to a measurement."""
+        """Converts the json format to a measurement.
+        
+        Arguments:
+            json (dict) -- The measurement in json-compatible format.
+            
+        Returns:
+            Measurement -- The measurement.
+        """
         tdy = np.array([complex(y[0], y[1]) for y in json["tdy"]])
         return cls(
             np.array(json["tdx"]),
