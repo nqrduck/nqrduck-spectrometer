@@ -120,3 +120,22 @@ class IPSetting(Setting):
         except ValueError:
             raise ValueError("Value must be a valid IP address")
         self.settings_changed.emit()
+
+class StringSetting(Setting):
+    """ A setting that is a string."""
+    def __init__(self, name : str, default : str, description : str) -> None:
+        super().__init__(name, description)
+        self.value = default
+
+    @property
+    def value(self):
+        return self._value
+    
+    @value.setter
+    def value(self, value):
+        try:
+            self._value = str(value)
+        except ValueError:
+            raise ValueError("Value must be a string")
+        
+        self.settings_changed.emit()

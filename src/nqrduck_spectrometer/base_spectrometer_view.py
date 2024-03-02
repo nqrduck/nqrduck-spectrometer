@@ -5,7 +5,7 @@ from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt, pyqtSlot
 from nqrduck.module.module_view import ModuleView
 from nqrduck.assets.icons import Logos
-from .settings import FloatSetting, IntSetting, BooleanSetting, SelectionSetting
+from .settings import FloatSetting, IntSetting, BooleanSetting, SelectionSetting, StringSetting
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ class BaseSpectrometerView(ModuleView):
                 setting_label.setMinimumWidth(200)
 
                  # Depending on the setting type we add different widgets to the view
-                if isinstance(setting, FloatSetting) or isinstance(setting, IntSetting):
+                if isinstance(setting, FloatSetting) or isinstance(setting, IntSetting) or isinstance(setting, StringSetting):
                     edit_widget = QLineEdit(str(setting.value))
                     edit_widget.setMinimumWidth(100)
                     # Connect the editingFinished signal to the on_value_changed slot of the setting
