@@ -1,10 +1,11 @@
 import logging
 from pathlib import Path
-from PyQt6.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QSizePolicy, QSpacerItem, QVBoxLayout
+from PyQt6.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QSizePolicy, QSpacerItem, QVBoxLayout, QCheckBox, QComboBox
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt, pyqtSlot
 from nqrduck.module.module_view import ModuleView
 from nqrduck.assets.icons import Logos
+from .settings import FloatSetting, IntSetting, BooleanSetting, SelectionSetting, StringSetting
 
 logger = logging.getLogger(__name__)
 
@@ -46,18 +47,31 @@ class BaseSpectrometerView(ModuleView):
             category_layout.addWidget(category_label)
             for setting in self.module.model.settings[category]:
                 logger.debug("Adding setting to settings view: %s", setting.name)
-                
+
                 spacer = QSpacerItem(20, 20)
                 # Create a label for the setting
                 setting_label = QLabel(setting.name)
                 setting_label.setMinimumWidth(200)
-                # Add an QLineEdit for the setting
-                line_edit = QLineEdit(str(setting.value))
-                line_edit.setMinimumWidth(100)
-                # Add a horizontal layout for the setting
-                layout = QHBoxLayout()
-                # Connect the editingFinished signal to the on_value_changed slot of the setting
-                line_edit.editingFinished.connect(lambda x=line_edit, s=setting: s.on_value_changed(x.text()))
+
+                 # Depending on the setting type we add different widgets to the view
+                if isinstance(setting, FloatSetting) or isinstance(setting, IntSetting) or isinstance(setting, StringSetting):
+                    edit_widget = QLineEdit(str(setting.value))
+                    edit_widget.setMinimumWidth(100)
+                    # Connect the editingFinished signal to the on_value_changed slot of the setting
+                    edit_widget.editingFinished.connect(lambda x=edit_widget, s=setting: s.on_value_changed(x.text()))
+
+                elif isinstance(setting, BooleanSetting):
+                    edit_widget = QCheckBox()
+                    edit_widget.setChecked(setting.value)
+                    edit_widget.stateChanged.connect(lambda x=edit_widget, s=setting: s.on_value_changed(x))
+
+                elif isinstance(setting, SelectionSetting):
+                    edit_widget = QComboBox()
+                    edit_widget.addItems(setting.options)
+                    edit_widget.setCurrentText(setting.value)
+                    edit_widget.currentTextChanged.connect(lambda x=edit_widget, s=setting: s.on_value_changed(x))
+                
+
                 # Add a icon that can be used as a tooltip
                 if setting.description is not None:
                     logger.debug("Adding tooltip to setting: %s", setting.name)
@@ -68,11 +82,13 @@ class BaseSpectrometerView(ModuleView):
                     icon_label.setFixedSize(icon.availableSizes()[0])
 
                     icon_label.setToolTip(setting.description)
-                    
+                
+                 # Add a horizontal layout for the setting
+                layout = QHBoxLayout()
                 # Add the label and the line edit to the layout
                 layout.addItem(spacer)
                 layout.addWidget(setting_label)
-                layout.addWidget(line_edit)
+                layout.addWidget(edit_widget)
                 layout.addWidget(icon_label)
                 layout.addStretch(1)
                 # Add the layout to the vertical layout of the widget
@@ -84,4 +100,5 @@ class BaseSpectrometerView(ModuleView):
         
         # Push all the settings to the top of the widget
         self._ui_form.verticalLayout.addStretch(1)
+
         
