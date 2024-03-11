@@ -1,6 +1,7 @@
 import logging
 import ipaddress
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
+from PyQt6.QtWidgets import QLineEdit, QComboBox, QCheckBox
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +24,20 @@ class Setting(QObject):
         def get_setting(self):
             return float(self.value)
         
+        def get_widget(self):
+            """Return a widget for the setting.
+            The default widget is simply a QLineEdit.
+            This method can be overwritten by subclasses to return a different widget.
+            
+            Returns:
+                QLineEdit: A QLineEdit widget that can be used to change the setting.
+                
+            """
+            widget = QLineEdit(str(self.value))
+            widget.setMinimumWidth(100)
+            widget.editingFinished.connect(lambda x=widget, s=self: s.on_value_changed(x.text()))
+            return widget
+        
 class FloatSetting(Setting):
     """ A setting that is a Float. """
     def __init__(self, name : str, default : float, description : str) -> None:
@@ -40,7 +55,6 @@ class FloatSetting(Setting):
         except ValueError:
             raise ValueError("Value must be a float")
         self.settings_changed.emit()
-         
 
 class IntSetting(Setting):
     """ A setting that is an Integer."""
@@ -79,6 +93,18 @@ class BooleanSetting(Setting):
             raise ValueError("Value must be a bool")
         self.settings_changed.emit()
 
+
+    def get_widget(self):
+        """Return a widget for the setting.
+        This returns a QCheckBox widget.
+        
+        Returns:
+            QCheckBox: A QCheckBox widget that can be used to change the setting.
+        """
+        widget = QCheckBox()
+        widget.setChecked(self.value)
+        widget.stateChanged.connect(lambda x=widget, s=self: s.on_value_changed(x.text()))
+
 class SelectionSetting(Setting):
     """ A setting that is a selection from a list of options."""
     def __init__(self, name : str, options : list, default : str, description : str) -> None:
@@ -101,6 +127,19 @@ class SelectionSetting(Setting):
         else:
             raise ValueError("Value must be one of the options")
         self.settings_changed.emit()
+
+    def get_widget(self):
+        """Return a widget for the setting.
+        This returns a QComboBox widget.
+        
+        Returns:
+            QComboBox: A QComboBox widget that can be used to change the setting.
+        """
+        widget = QComboBox()
+        widget.addItems(self.options)
+        widget.setCurrentText(self.value)
+        widget.currentTextChanged.connect(lambda x=widget, s=self: s.on_value_changed(x.text()))
+        return widget
 
 class IPSetting(Setting):
     """ A setting that is an IP address."""

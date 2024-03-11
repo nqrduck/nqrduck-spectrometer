@@ -53,25 +53,8 @@ class BaseSpectrometerView(ModuleView):
                 setting_label = QLabel(setting.name)
                 setting_label.setMinimumWidth(200)
 
-                 # Depending on the setting type we add different widgets to the view
-                if isinstance(setting, FloatSetting) or isinstance(setting, IntSetting) or isinstance(setting, StringSetting):
-                    edit_widget = QLineEdit(str(setting.value))
-                    edit_widget.setMinimumWidth(100)
-                    # Connect the editingFinished signal to the on_value_changed slot of the setting
-                    edit_widget.editingFinished.connect(lambda x=edit_widget, s=setting: s.on_value_changed(x.text()))
-
-                elif isinstance(setting, BooleanSetting):
-                    edit_widget = QCheckBox()
-                    edit_widget.setChecked(setting.value)
-                    edit_widget.stateChanged.connect(lambda x=edit_widget, s=setting: s.on_value_changed(x))
-
-                elif isinstance(setting, SelectionSetting):
-                    edit_widget = QComboBox()
-                    edit_widget.addItems(setting.options)
-                    edit_widget.setCurrentText(setting.value)
-                    edit_widget.currentTextChanged.connect(lambda x=edit_widget, s=setting: s.on_value_changed(x))
+                edit_widget = setting.get_widget()
                 
-
                 # Add a icon that can be used as a tooltip
                 if setting.description is not None:
                     logger.debug("Adding tooltip to setting: %s", setting.name)
