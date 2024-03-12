@@ -103,7 +103,8 @@ class BooleanSetting(Setting):
         """
         widget = QCheckBox()
         widget.setChecked(self.value)
-        widget.stateChanged.connect(lambda x=widget, s=self: s.on_value_changed(x.text()))
+        widget.stateChanged.connect(lambda x=widget, s=self: s.on_value_changed(bool(x)))
+        return widget
 
 class SelectionSetting(Setting):
     """ A setting that is a selection from a list of options."""
@@ -138,7 +139,7 @@ class SelectionSetting(Setting):
         widget = QComboBox()
         widget.addItems(self.options)
         widget.setCurrentText(self.value)
-        widget.currentTextChanged.connect(lambda x=widget, s=self: s.on_value_changed(x.text()))
+        widget.currentTextChanged.connect(lambda x=widget, s=self: s.on_value_changed(x))
         return widget
 
 class IPSetting(Setting):
@@ -178,3 +179,16 @@ class StringSetting(Setting):
             raise ValueError("Value must be a string")
         
         self.settings_changed.emit()
+
+    def get_widget(self):
+        """Return a widget for the setting.
+        The default widget is simply a QLineEdit.
+        This method can be overwritten by subclasses to return a different widget.
+        
+        Returns:
+            QLineEdit: A QLineEdit widget that can be used to change the setting.
+        """
+        widget = QLineEdit(str(self.value))
+        widget.setMinimumWidth(100)
+        widget.editingFinished.connect(lambda x=widget, s=self: s.on_value_changed(x.text()))
+        return widget

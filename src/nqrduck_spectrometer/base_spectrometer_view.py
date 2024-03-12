@@ -54,6 +54,7 @@ class BaseSpectrometerView(ModuleView):
                 setting_label.setMinimumWidth(200)
 
                 edit_widget = setting.get_widget()
+                logger.debug("Setting widget: %s", edit_widget)
                 
                 # Add a icon that can be used as a tooltip
                 if setting.description is not None:
