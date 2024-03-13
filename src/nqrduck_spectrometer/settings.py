@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 class Setting(QObject):
     """A setting for the spectrometer is a value that is the same for all events in a pulse sequence.
-    E.g. the number of averages or the number of points in a spectrum."""
+    E.g. the Transmit gain or the number of points in a spectrum."""
 
     settings_changed = pyqtSignal()
 
@@ -86,6 +86,9 @@ class FloatSetting(Setting):
         else:
             # Create a regex validator that only allows floats
             regex = "[-+]?[0-9]*\.?[0-9]+"
+            # Optional scientific notation
+            regex += "([eE][-+]?[0-9]+)?"
+
             self.validator = QRegularExpressionValidator(QRegularExpression(regex))
 
             self.widget = self.get_widget()
@@ -132,6 +135,9 @@ class IntSetting(Setting):
         else:
             # Create a regex validator that only allows integers
             regex = "[-+]?[0-9]+"
+            # Optional scientific notation
+            regex += "([eE][-+]?[0-9]+)?"
+
             self.validator = QRegularExpressionValidator(QRegularExpression(regex))
 
             self.widget = self.get_widget()
