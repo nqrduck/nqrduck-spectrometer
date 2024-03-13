@@ -53,7 +53,7 @@ class BaseSpectrometerView(ModuleView):
                 setting_label = QLabel(setting.name)
                 setting_label.setMinimumWidth(200)
 
-                edit_widget = setting.get_widget()
+                edit_widget = setting.widget
                 logger.debug("Setting widget: %s", edit_widget)
                 
                 # Add a icon that can be used as a tooltip
