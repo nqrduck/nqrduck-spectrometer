@@ -146,11 +146,10 @@ class IntSetting(Setting):
     def value(self, value):
         try:
             self._value = int(value)
+            self.settings_changed.emit()
         except ValueError:
             raise ValueError("Value must be an int")
-        self.settings_changed.emit()
-
-
+        
 class BooleanSetting(Setting):
     """A setting that is a Boolean."""
 
@@ -168,9 +167,10 @@ class BooleanSetting(Setting):
     def value(self, value):
         try:
             self._value = bool(value)
+            self.settings_changed.emit()
         except ValueError:
             raise ValueError("Value must be a bool")
-        self.settings_changed.emit()
+        
 
     def get_widget(self):
         """Return a widget for the setting.
@@ -212,14 +212,14 @@ class SelectionSetting(Setting):
         try:
             if value in self.options:
                 self._value = value
+                self.settings_changed.emit()
             else:
                 raise ValueError("Value must be one of the options")
         # This fixes a bug when creating the widget when the options are not yet set
         except AttributeError:
             self._value = value
             self.options = [value]
-
-        self.settings_changed.emit()
+            self.settings_changed.emit()
 
     def get_widget(self):
         """Return a widget for the setting.
@@ -272,7 +272,8 @@ class StringSetting(Setting):
     def value(self, value):
         try:
             self._value = str(value)
+            self.settings_changed.emit()
         except ValueError:
             raise ValueError("Value must be a string")
 
-        self.settings_changed.emit()
+        
