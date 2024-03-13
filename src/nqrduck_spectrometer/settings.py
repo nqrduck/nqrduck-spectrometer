@@ -1,8 +1,9 @@
 import logging
 import ipaddress
-from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot, QRegularExpression
+from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import QLineEdit, QComboBox, QCheckBox
-from PyQt6.QtGui import QValidator, QRegularExpressionValidator
+from PyQt6.QtGui import QValidator
+from nqrduck.helpers.validators import DuckIntValidator, DuckFloatValidator
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ class Setting(QObject):
         if default is not None:
             self.value = default
 
-        # This can be overriden by subclasses
+        # This can be overridden by subclasses
         self.widget = self.get_widget()
 
     @pyqtSlot(str)
@@ -57,12 +58,12 @@ class Setting(QObject):
     def update_widget_style(self):
         """Update the style of the QLineEdit widget to indicate if the value is valid."""
         if (
-            self.validator.validate(self.widget.text(), 0)[0]
+            self.validator.validate(self.widget.text(), 0)
             == QValidator.State.Acceptable
         ):
             self.widget.setStyleSheet("QLineEdit { background-color: white; }")
         elif (
-            self.validator.validate(self.widget.text(), 0)[0]
+            self.validator.validate(self.widget.text(), 0)
             == QValidator.State.Intermediate
         ):
             self.widget.setStyleSheet("QLineEdit { background-color: yellow; }")
@@ -76,7 +77,13 @@ class FloatSetting(Setting):
     DEFAULT_LENGTH = 100
 
     def __init__(
-        self, name: str, default: float, description: str, validator: QValidator = None
+        self,
+        name: str,
+        default: float,
+        description: str,
+        validator: QValidator = None,
+        min_value: float = None,
+        max_value: float = None,
     ) -> None:
         super().__init__(name, description, default)
 
@@ -84,12 +91,7 @@ class FloatSetting(Setting):
         if validator:
             self.validator = validator
         else:
-            # Create a regex validator that only allows floats
-            regex = "[-+]?[0-9]*\.?[0-9]+"
-            # Optional scientific notation
-            regex += "([eE][-+]?[0-9]+)?"
-
-            self.validator = QRegularExpressionValidator(QRegularExpression(regex))
+            self.validator = DuckFloatValidator(self, min_value, max_value)
 
             self.widget = self.get_widget()
             # self.widget.setValidator(self.validator)
@@ -103,7 +105,7 @@ class FloatSetting(Setting):
     @value.setter
     def value(self, value):
         try:
-            if self.validator.validate(value, 0)[0] == QValidator.State.Acceptable:
+            if self.validator.validate(value, 0) == QValidator.State.Acceptable:
                 self._value = float(value)
                 self.settings_changed.emit()
         # This should never be reached because the validator should prevent this
@@ -133,16 +135,14 @@ class IntSetting(Setting):
         if validator:
             self.validator = validator
         else:
-            # Create a regex validator that only allows integers
-            regex = "[-+]?[0-9]+"
-            # Optional scientific notation
-            regex += "([eE][-+]?[0-9]+)?"
-
-            self.validator = QRegularExpressionValidator(QRegularExpression(regex))
+            self.validator = DuckIntValidator(self, min_value, max_value)
 
             self.widget = self.get_widget()
             # Connect the update_widget_style method to the textChanged signal
             self.widget.textChanged.connect(self.update_widget_style)
+
+        self.min_value = min_value
+        self.max_value = max_value
 
     @property
     def value(self):
@@ -151,11 +151,20 @@ class IntSetting(Setting):
     @value.setter
     def value(self, value):
         try:
-            self._value = int(value)
-            self.settings_changed.emit()
+            if self.validator.validate(value, 0) == QValidator.State.Acceptable:
+                value = int(float(value))
+
+                self._value = value
+                self.settings_changed.emit()
         except ValueError:
             raise ValueError("Value must be an int")
-        
+        # This happens when the validator has not yet been set
+        except AttributeError as e:
+            logger.debug(e)
+            self._value = int(float(value))
+            self.settings_changed.emit()
+
+
 class BooleanSetting(Setting):
     """A setting that is a Boolean."""
 
@@ -176,7 +185,6 @@ class BooleanSetting(Setting):
             self.settings_changed.emit()
         except ValueError:
             raise ValueError("Value must be a bool")
-        
 
     def get_widget(self):
         """Return a widget for the setting.
@@ -281,5 +289,3 @@ class StringSetting(Setting):
             self.settings_changed.emit()
         except ValueError:
             raise ValueError("Value must be a string")
-
-        
