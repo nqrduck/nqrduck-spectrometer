@@ -39,5 +39,6 @@ class SpectrometerModel(ModuleModel):
         logger.debug("Added module: %s", spectrometer_module_name)
         self.spectrometer_added.emit(module)
         self.active_spectrometer = module
+        self.add_submodule(spectrometer_module_name)
 
 
