@@ -1,3 +1,5 @@
+"""Settings for the different spectrometers."""
+
 import logging
 import ipaddress
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
@@ -10,7 +12,20 @@ logger = logging.getLogger(__name__)
 
 class Setting(QObject):
     """A setting for the spectrometer is a value that is the same for all events in a pulse sequence.
-    E.g. the Transmit gain or the number of points in a spectrum."""
+
+    E.g. the Transmit gain or the number of points in a spectrum.
+
+    Args:
+        name (str) : The name of the setting
+        description (str) : A description of the setting
+        default : The default value of the setting
+
+    Attributes:
+        name (str) : The name of the setting
+        description (str) : A description of the setting
+        value : The value of the setting
+        widget : The widget that is used to change the setting
+    """
 
     settings_changed = pyqtSignal()
 
@@ -20,6 +35,7 @@ class Setting(QObject):
         Args:
             name (str): The name of the setting.
             description (str): A description of the setting.
+            default: The default value of the setting.
         """
         super().__init__()
         self.name = name
@@ -32,21 +48,31 @@ class Setting(QObject):
 
     @pyqtSlot(str)
     def on_value_changed(self, value):
+        """This method is called when the value of the setting is changed.
+
+        Args:
+            value (str): The new value of the setting.
+        """
         logger.debug("Setting %s changed to %s", self.name, value)
         self.value = value
         self.settings_changed.emit()
 
     def get_setting(self):
+        """Return the value of the setting.
+
+        Returns:
+            The value of the setting.
+        """
         return float(self.value)
 
     def get_widget(self):
         """Return a widget for the setting.
+
         The default widget is simply a QLineEdit.
         This method can be overwritten by subclasses to return a different widget.
 
         Returns:
             QLineEdit: A QLineEdit widget that can be used to change the setting.
-
         """
         widget = QLineEdit(str(self.value))
         widget.setMinimumWidth(100)
@@ -72,7 +98,16 @@ class Setting(QObject):
 
 
 class FloatSetting(Setting):
-    """A setting that is a Float."""
+    """A setting that is a Float.
+
+    Args:
+        name (str) : The name of the setting
+        default : The default value of the setting
+        description (str) : A description of the setting
+        validator (QValidator) : A validator for the setting
+        min_value : The minimum value of the setting
+        max_value : The maximum value of the setting
+    """
 
     DEFAULT_LENGTH = 100
 
@@ -85,6 +120,7 @@ class FloatSetting(Setting):
         min_value: float = None,
         max_value: float = None,
     ) -> None:
+        """Create a new float setting."""
         super().__init__(name, description, default)
 
         # If a validator is given, set it for the QLineEdit widget
@@ -100,6 +136,7 @@ class FloatSetting(Setting):
 
     @property
     def value(self):
+        """The value of the setting. In this case, a float."""
         return self._value
 
     @value.setter
@@ -118,7 +155,16 @@ class FloatSetting(Setting):
 
 
 class IntSetting(Setting):
-    """A setting that is an Integer."""
+    """A setting that is an Integer.
+
+    Args:
+        name (str) : The name of the setting
+        default : The default value of the setting
+        description (str) : A description of the setting
+        validator (QValidator) : A validator for the setting
+        min_value : The minimum value of the setting
+        max_value : The maximum value of the setting
+    """
 
     def __init__(
         self,
@@ -129,6 +175,7 @@ class IntSetting(Setting):
         min_value=None,
         max_value=None,
     ) -> None:
+        """Create a new int setting."""
         super().__init__(name, description, default)
 
         # If a validator is given, set it for the QLineEdit widget
@@ -146,6 +193,7 @@ class IntSetting(Setting):
 
     @property
     def value(self):
+        """The value of the setting. In this case, an int."""
         return self._value
 
     @value.setter
@@ -166,9 +214,16 @@ class IntSetting(Setting):
 
 
 class BooleanSetting(Setting):
-    """A setting that is a Boolean."""
+    """A setting that is a Boolean.
+
+    Args:
+        name (str) : The name of the setting
+        default : The default value of the setting
+        description (str) : A description of the setting
+    """
 
     def __init__(self, name: str, default: bool, description: str) -> None:
+        """Create a new boolean setting."""
         super().__init__(name, description, default)
 
         # Overrides the default widget
@@ -176,6 +231,7 @@ class BooleanSetting(Setting):
 
     @property
     def value(self):
+        """The value of the setting. In this case, a bool."""
         return self._value
 
     @value.setter
@@ -188,6 +244,7 @@ class BooleanSetting(Setting):
 
     def get_widget(self):
         """Return a widget for the setting.
+
         This returns a QCheckBox widget.
 
         Returns:
@@ -202,11 +259,19 @@ class BooleanSetting(Setting):
 
 
 class SelectionSetting(Setting):
-    """A setting that is a selection from a list of options."""
+    """A setting that is a selection from a list of options.
+
+    Args:
+        name (str) : The name of the setting
+        options (list) : A list of options to choose from
+        default : The default value of the setting
+        description (str) : A description of the setting
+    """
 
     def __init__(
         self, name: str, options: list, default: str, description: str
     ) -> None:
+        """Create a new selection setting."""
         super().__init__(name, description, default)
         # Check if default is in options
         if default not in options:
@@ -219,6 +284,7 @@ class SelectionSetting(Setting):
 
     @property
     def value(self):
+        """The value of the setting. In this case, a string."""
         return self._value
 
     @value.setter
@@ -237,6 +303,7 @@ class SelectionSetting(Setting):
 
     def get_widget(self):
         """Return a widget for the setting.
+
         This returns a QComboBox widget.
 
         Returns:
@@ -252,14 +319,22 @@ class SelectionSetting(Setting):
 
 
 class IPSetting(Setting):
-    """A setting that is an IP address."""
+    """A setting that is an IP address.
+
+    Args:
+        name (str) : The name of the setting
+        default : The default value of the setting
+        description (str) : A description of the setting
+    """
 
     def __init__(self, name: str, default: str, description: str) -> None:
+        """Create a new IP setting."""
         super().__init__(name, description)
         self.value = default
 
     @property
     def value(self):
+        """The value of the setting. In this case, an IP address."""
         return self._value
 
     @value.setter
@@ -273,13 +348,21 @@ class IPSetting(Setting):
 
 
 class StringSetting(Setting):
-    """A setting that is a string."""
+    """A setting that is a string.
+
+    Args:
+        name (str) : The name of the setting
+        default : The default value of the setting
+        description (str) : A description of the setting
+    """
 
     def __init__(self, name: str, default: str, description: str) -> None:
+        """Create a new string setting."""
         super().__init__(name, description, default)
 
     @property
     def value(self):
+        """The value of the setting. In this case, a string."""
         return self._value
 
     @value.setter
