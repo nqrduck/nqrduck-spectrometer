@@ -4,8 +4,7 @@ import logging
 import ipaddress
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import QLineEdit, QComboBox, QCheckBox
-from PyQt6.QtGui import QValidator
-from nqrduck.helpers.validators import DuckIntValidator, DuckFloatValidator
+from nqrduck.helpers.duckwidgets import DuckFloatEdit, DuckIntEdit
 
 logger = logging.getLogger(__name__)
 
@@ -81,21 +80,6 @@ class Setting(QObject):
         )
         return widget
 
-    def update_widget_style(self):
-        """Update the style of the QLineEdit widget to indicate if the value is valid."""
-        if (
-            self.validator.validate(self.widget.text(), 0)
-            == QValidator.State.Acceptable
-        ):
-            self.widget.setStyleSheet("")
-        elif (
-            self.validator.validate(self.widget.text(), 0)
-            == QValidator.State.Intermediate
-        ):
-            self.widget.setStyleSheet("QLineEdit { background-color: yellow; }")
-        else:
-            self.widget.setStyleSheet("QLineEdit { background-color: red; }")
-
 
 class FloatSetting(Setting):
     """A setting that is a Float.
@@ -104,7 +88,6 @@ class FloatSetting(Setting):
         name (str) : The name of the setting
         default : The default value of the setting
         description (str) : A description of the setting
-        validator (QValidator) : A validator for the setting
         min_value : The minimum value of the setting
         max_value : The maximum value of the setting
     """
@@ -116,23 +99,25 @@ class FloatSetting(Setting):
         name: str,
         default: float,
         description: str,
-        validator: QValidator = None,
         min_value: float = None,
         max_value: float = None,
     ) -> None:
         """Create a new float setting."""
         super().__init__(name, description, default)
 
-        # If a validator is given, set it for the QLineEdit widget
-        if validator:
-            self.validator = validator
-        else:
-            self.validator = DuckFloatValidator(self, min_value, max_value)
+        self.widget = DuckFloatEdit(min_value=min_value, max_value=max_value)
+        self.widget.setText(str(default))
+        self.widget.state_updated.connect(self.on_state_updated)
 
-            self.widget = self.get_widget()
-            # self.widget.setValidator(self.validator)
-            # Connect the update_widget_style method to the textChanged signal
-            self.widget.textChanged.connect(self.update_widget_style)
+    def on_state_updated(self, state, text):
+        """Update the value of the setting.
+
+        Args:
+            state (bool): The state of the input (valid or not).
+            text (str): The new value of the setting.
+        """
+        if state:
+            self.value = text
 
     @property
     def value(self):
@@ -141,17 +126,8 @@ class FloatSetting(Setting):
 
     @value.setter
     def value(self, value):
-        try:
-            if self.validator.validate(value, 0) == QValidator.State.Acceptable:
-                self._value = float(value)
-                self.settings_changed.emit()
-        # This should never be reached because the validator should prevent this
-        except ValueError:
-            raise ValueError("Value must be a float")
-        # This happens when the validator has not yet been set
-        except AttributeError:
-            self._value = float(value)
-            self.settings_changed.emit()
+        self._value = float(value)
+        self.settings_changed.emit()
 
 
 class IntSetting(Setting):
@@ -161,7 +137,6 @@ class IntSetting(Setting):
         name (str) : The name of the setting
         default : The default value of the setting
         description (str) : A description of the setting
-        validator (QValidator) : A validator for the setting
         min_value : The minimum value of the setting
         max_value : The maximum value of the setting
     """
@@ -171,25 +146,26 @@ class IntSetting(Setting):
         name: str,
         default: int,
         description: str,
-        validator: QValidator = None,
         min_value=None,
         max_value=None,
     ) -> None:
         """Create a new int setting."""
         super().__init__(name, description, default)
 
-        # If a validator is given, set it for the QLineEdit widget
-        if validator:
-            self.validator = validator
-        else:
-            self.validator = DuckIntValidator(self, min_value, max_value)
+        self.widget = DuckIntEdit(min_value=min_value, max_value=max_value)
+        self.widget.setText(str(default))
 
-            self.widget = self.get_widget()
-            # Connect the update_widget_style method to the textChanged signal
-            self.widget.textChanged.connect(self.update_widget_style)
+        self.widget.state_updated.connect(self.on_state_updated)
 
-        self.min_value = min_value
-        self.max_value = max_value
+    def on_state_updated(self, state, text):
+        """Update the value of the setting.
+
+        Args:
+            state (bool): The state of the input (valid or not).
+            text (str): The new value of the setting.
+        """
+        if state:
+            self.value = text
 
     @property
     def value(self):
@@ -198,19 +174,10 @@ class IntSetting(Setting):
 
     @value.setter
     def value(self, value):
-        try:
-            if self.validator.validate(value, 0) == QValidator.State.Acceptable:
-                value = int(float(value))
+        value = int(float(value))
+        self._value = value
+        self.settings_changed.emit()
 
-                self._value = value
-                self.settings_changed.emit()
-        except ValueError:
-            raise ValueError("Value must be an int")
-        # This happens when the validator has not yet been set
-        except AttributeError as e:
-            logger.debug(e)
-            self._value = int(float(value))
-            self.settings_changed.emit()
 
 
 class BooleanSetting(Setting):
