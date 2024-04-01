@@ -87,7 +87,7 @@ class Setting(QObject):
             self.validator.validate(self.widget.text(), 0)
             == QValidator.State.Acceptable
         ):
-            self.widget.setStyleSheet("QLineEdit { background-color: white; }")
+            self.widget.setStyleSheet("QLineEdit { background-color: transparent; }")
         elif (
             self.validator.validate(self.widget.text(), 0)
             == QValidator.State.Intermediate
