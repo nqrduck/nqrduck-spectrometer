@@ -1,5 +1,9 @@
+"""The Controller for the Spectrometer Module.
+
+Careful - this is not the base class for the spectrometer submodules, but the controller for the spectrometer module itself.
+"""
+
 import logging
-from PyQt6.QtCore import pyqtSlot
 from nqrduck.module.module_controller import ModuleController
 from nqrduck.core.main_controller import MainController
 from nqrduck_spectrometer.base_spectrometer import BaseSpectrometer
@@ -40,6 +44,7 @@ class SpectrometerController(ModuleController):
 
     def process_signals(self, key: str, value: object) -> None:
         """This method processes the signals from the nqrduck module.
+
         It is called by the nqrduck module when a signal is emitted.
         It then calls the corresponding method of the spectrometer model.
 
@@ -59,6 +64,7 @@ class SpectrometerController(ModuleController):
 
     def on_loading(self) -> None:
         """This method is called when the module is loaded.
+
         It connects the signals from the spectrometer model to the view.
         """
         self._module.model.spectrometer_added.connect(
@@ -71,6 +77,7 @@ class SpectrometerController(ModuleController):
 
     def on_measurement_start(self) -> None:
         """This method is called when a measurement is started.
+
         It calls the on_measurement_start method of the active spectrometer.
         """
         logger.debug(

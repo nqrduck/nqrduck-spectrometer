@@ -1,7 +1,9 @@
+"""View for the Spectrometer Module. Careful - this is not the base class for the spectrometer submodules, but the view for the spectrometer module itself."""
+
 import logging
-from PyQt6.QtWidgets import QWidget, QToolButton, QToolBar, QMenu
+from PyQt6.QtWidgets import QWidget, QMenu
 from PyQt6.QtGui import QAction
-from PyQt6.QtCore import pyqtSlot, pyqtSignal
+from PyQt6.QtCore import pyqtSlot
 from nqrduck.module.module_view import ModuleView
 from .widget import Ui_Form
 
@@ -9,11 +11,16 @@ logger = logging.getLogger(__name__)
 
 
 class SpectrometerView(ModuleView):
+    """The view for the spectrometer module. This class is responsible for displaying the spectrometer module in the main window.
+
+    It contains the menu buttons for the different spectrometers and the stacked widget that shows the different spectrometer views.
+
+    Args:
+        module (Module) : The spectrometer module that this view belongs to
+    """
+
     def __init__(self, module):
-        """This class is the view for the spectrometer module. It contains the menu buttons for the different spectrometers.
-        It also contains the stacked widget that shows the different spectrometer views.
-        :param module: The spectrometer module that this view belongs to.
-        """
+        """Initializes the spectrometer view. It sets up the UI and the stacked widget for the spectrometers."""
         super().__init__(module)
 
         widget = QWidget()
@@ -25,17 +32,20 @@ class SpectrometerView(ModuleView):
         self.blank = QWidget()
 
         self._ui_form.stackedWidgetSettings.setStyleSheet(
-            "QStackedWidget { background-color: #fafafa; border: 2px solid #000; }"
+            "QStackedWidget { border: 2px solid #000; }"
         )
 
         self._ui_form.stackedWidgetPulseProgrammer.setStyleSheet(
-            "QStackedWidget { background-color: #fafafa; border: 2px solid #000; }"
+            "QStackedWidget { border: 2px solid #000; }"
         )
 
     def on_active_spectrometer_changed(self, module):
         """This method is called when the active spectrometer is changed.
+
         It changes the active view in the stacked widget to the one that was just activated.
-        :param module: The BaseSpectrometer module that was just activated.
+
+        Args:
+            module (BaseSpectrometer) : The spectrometer module that was just activated
         """
         self._ui_form.stackedWidgetSettings.setCurrentWidget(module.settings_view)
 
@@ -52,8 +62,11 @@ class SpectrometerView(ModuleView):
 
     def on_spectrometer_widget_changed(self, module):
         """This method is called when a new spectrometer widget is added to the module.
+
         It adds the widget to the stacked widget and sets it as the current widget.
-        :param widget: The widget that was added to the module.
+
+        Args:
+            module (BaseSpectrometer) : The spectrometer module that was just added
         """
         logger.debug(
             "Adding settings widget to stacked widget: %s", module.settings_view
@@ -72,7 +85,7 @@ class SpectrometerView(ModuleView):
             self._ui_form.stackedWidgetPulseProgrammer.setCurrentWidget(
                 module.model.pulse_programmer.pulse_programmer_view
             )
-        except AttributeError as e:
+        except AttributeError:
             logger.debug(
                 "No pulse programmer widget to add for spectrometer %s",
                 module.model.name,
@@ -83,7 +96,9 @@ class SpectrometerView(ModuleView):
 
     def on_spectrometer_added(self, module):
         """This method changes the active spectrometer to the one that was just added.
-        :param module: The BaseSpectrometer module that was just added.
+
+        Args:
+            module (BaseSpectrometer) : The spectrometer module that was just added
         """
         module.change_spectrometer.connect(self.on_menu_button_clicked)
         self.on_spectrometer_widget_changed(module)
@@ -119,10 +134,14 @@ class SpectrometerView(ModuleView):
 
     @pyqtSlot(str)
     def on_menu_button_clicked(self, spectrometer_name):
-        """This method is called when a menu button is clicked. It changes the active spectrometer to the one that was clicked.
+        """This method is called when a menu button is clicked.
+
+        It changes the active spectrometer to the one that was clicked.
         It also unchecks all other menu buttons.
 
-        :param spectrometer_name: The name of the spectrometer that was clicked."""
+        Args:
+            spectrometer_name (str) : The name of the spectrometer that was clicked
+        """
         logger.debug("Active module changed to: %s", spectrometer_name)
         for action in self._actions.values():
             action.setChecked(False)
