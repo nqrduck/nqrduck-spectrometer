@@ -80,8 +80,9 @@ class BaseSpectrometerView(ModuleView):
                 layout.addItem(spacer)
                 layout.addWidget(setting_label)
                 layout.addWidget(edit_widget)
-                layout.addWidget(icon_label)
                 layout.addStretch(1)
+                layout.addWidget(icon_label)
+                
                 # Add the layout to the vertical layout of the widget
                 category_layout.addLayout(layout)
 
