@@ -41,6 +41,8 @@ class Setting(QObject):
         self.description = description
         if default is not None:
             self.value = default
+            # Update the description with the default value
+            self.description += f"\n (Default: {default})"
 
         # This can be overridden by subclasses
         self.widget = self.get_widget()
