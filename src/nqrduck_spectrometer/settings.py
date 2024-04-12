@@ -4,7 +4,7 @@ import logging
 import ipaddress
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import QLineEdit, QComboBox, QCheckBox
-from nqrduck.helpers.duckwidgets import DuckFloatEdit, DuckIntEdit
+from nqrduck.helpers.duckwidgets import DuckFloatEdit, DuckIntEdit, DuckSpinBox
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +41,8 @@ class Setting(QObject):
         self.description = description
         if default is not None:
             self.value = default
+            # Update the description with the default value
+            self.description += f"\n (Default: {default})"
 
         # This can be overridden by subclasses
         self.widget = self.get_widget()
@@ -79,9 +81,35 @@ class Setting(QObject):
             lambda x=widget, s=self: s.on_value_changed(x.text())
         )
         return widget
+    
+class NumericalSetting(Setting):
+    """ A setting that is a numerical value.
+    It can additionally have a minimum and maximum value.
+    """
+    def __init__(self, name: str, description: str, default, min_value = None, max_value  = None ) -> None:
+        """Create a new numerical setting."""
+        super().__init__(name, self.description_limit_info(description, min_value, max_value), default)
+
+    def description_limit_info(self, description: str, min_value, max_value) -> str:
+        """ Updates the description with the limits of the setting if there are any.
+        
+        Args:
+            description (str): The description of the setting.
+            
+        Returns:
+            str: The description of the setting with the limits.
+        """
+        if min_value is not None and max_value is not None:
+            description += (f"\n (min: {min_value}, max: {max_value})")
+        elif min_value is not None:
+            description += (f"\n (min: {min_value})")
+        elif max_value is not None:
+            description += (f"\n (max: {max_value})")
+        
+        return description
 
 
-class FloatSetting(Setting):
+class FloatSetting(NumericalSetting):
     """A setting that is a Float.
 
     Args:
@@ -90,6 +118,7 @@ class FloatSetting(Setting):
         description (str) : A description of the setting
         min_value : The minimum value of the setting
         max_value : The maximum value of the setting
+        spin_box : A tuple with two booleans that determine if a spin box is used if the second value is True, a slider will be created as well. 
     """
 
     DEFAULT_LENGTH = 100
@@ -101,12 +130,18 @@ class FloatSetting(Setting):
         description: str,
         min_value: float = None,
         max_value: float = None,
+        spin_box: tuple = (False, False)
     ) -> None:
         """Create a new float setting."""
-        super().__init__(name, description, default)
+        super().__init__(name, description, default, min_value, max_value)
 
-        self.widget = DuckFloatEdit(min_value=min_value, max_value=max_value)
-        self.widget.setText(str(default))
+        if spin_box[0]:
+            self.widget = DuckSpinBox(min_value=min_value, max_value=max_value, slider=spin_box[1], double_box=True)
+            self.widget.spin_box.setValue(default)
+        else:
+            self.widget = DuckFloatEdit(min_value=min_value, max_value=max_value)
+            self.widget.setText(str(default))
+
         self.widget.state_updated.connect(self.on_state_updated)
 
     def on_state_updated(self, state, text):
@@ -130,7 +165,7 @@ class FloatSetting(Setting):
         self.settings_changed.emit()
 
 
-class IntSetting(Setting):
+class IntSetting(NumericalSetting):
     """A setting that is an Integer.
 
     Args:
@@ -139,6 +174,7 @@ class IntSetting(Setting):
         description (str) : A description of the setting
         min_value : The minimum value of the setting
         max_value : The maximum value of the setting
+        spin_box : A tuple with two booleans that determine if a spin box is used if the second value is True, a slider will be created as well.
     """
 
     def __init__(
@@ -148,12 +184,17 @@ class IntSetting(Setting):
         description: str,
         min_value=None,
         max_value=None,
+        spin_box: tuple = (False, False)
     ) -> None:
         """Create a new int setting."""
-        super().__init__(name, description, default)
+        super().__init__(name, description, default, min_value, max_value)
 
-        self.widget = DuckIntEdit(min_value=min_value, max_value=max_value)
-        self.widget.setText(str(default))
+        if spin_box[0]:
+            self.widget = DuckSpinBox(min_value=min_value, max_value=max_value, slider=spin_box[1])
+            self.widget.spin_box.setValue(default)
+        else:
+            self.widget = DuckIntEdit(min_value=min_value, max_value=max_value)
+            self.widget.setText(str(default))
 
         self.widget.state_updated.connect(self.on_state_updated)
 
