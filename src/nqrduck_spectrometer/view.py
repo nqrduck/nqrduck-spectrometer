@@ -112,6 +112,14 @@ class SpectrometerView(ModuleView):
             self._module.model._available_spectrometers,
         )
 
+        # Create an header action called 'Spectrometer"
+        self._actions["Spectrometer"] = QAction("Spectrometer:", menu_item)
+        font = self._actions["Spectrometer"].font()
+        font.setBold(True)
+        self._actions["Spectrometer"].setFont(font)
+        self._actions["Spectrometer"].setEnabled(False)
+        menu_item.addSeparator()
+
         for (
             spectrometer_name,
             spectrometer_module,
@@ -130,7 +138,7 @@ class SpectrometerView(ModuleView):
         last_added_action = self._actions[list(self._actions.keys())[-1]]
         last_added_action.setChecked(True)
 
-        self.add_menubar_item.emit("Hardware", list(self._actions.values()))
+        self.add_menubar_item.emit("Hardware", list(self._actions.values()), True)
 
     @pyqtSlot(str)
     def on_menu_button_clicked(self, spectrometer_name):
