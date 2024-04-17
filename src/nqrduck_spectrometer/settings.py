@@ -83,7 +83,8 @@ class Setting(QObject):
         return widget
     
 class NumericalSetting(Setting):
-    """ A setting that is a numerical value.
+    """A setting that is a numerical value.
+
     It can additionally have a minimum and maximum value.
     """
     def __init__(self, name: str, description: str, default, min_value = None, max_value  = None ) -> None:
@@ -91,10 +92,12 @@ class NumericalSetting(Setting):
         super().__init__(name, self.description_limit_info(description, min_value, max_value), default)
 
     def description_limit_info(self, description: str, min_value, max_value) -> str:
-        """ Updates the description with the limits of the setting if there are any.
+        """Updates the description with the limits of the setting if there are any.
         
         Args:
             description (str): The description of the setting.
+            min_value: The minimum value of the setting.
+            max_value: The maximum value of the setting.
             
         Returns:
             str: The description of the setting with the limits.
