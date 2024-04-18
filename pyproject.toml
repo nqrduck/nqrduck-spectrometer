@@ -7,15 +7,15 @@ allow-direct-references = true
 
 [project]
 name = "nqrduck-spectrometer"
-version = "0.0.7"
+version = "0.0.8"
 authors = [
-  { name="Julia Pfitzer", email="git@jupfi.me" },
+  { name="jupfi", email="support@nqruck.cool" },
 ]
 
 description = "A module for the NQRduck program (a simple python script™) to control different NQR/NMR spectrometers."
 readme = "README.md"
 license = { file="LICENSE" }
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -26,7 +26,7 @@ classifiers = [
 dependencies = [
     "matplotlib",
     "pyqt6",
-    "NQRduck",
+    "nqrduck",
     "sympy",
     "numpy",
     "scipy",
@@ -60,3 +60,11 @@ convention = "google"
 
 [project.entry-points."nqrduck"]
 "nqrduck-spectrometer" = "nqrduck_spectrometer.spectrometer:Spectrometer"
+
+[project.urls]
+"Homepage" = "https://nqrduck.cool"
+"Bug Tracker" = "https://github.com/nqrduck/nqrduck-spectrometer/issues"
+"Source Code" = "https://github.com/nqrduck/nqrduck-spectrometer"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nqrduck_spectrometer"]
