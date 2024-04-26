@@ -175,18 +175,17 @@ class TXRectFunction(RectFunction):
 
     def __init__(self) -> None:
         super().__init__()
-        self.name = "TX Rectangular Pulse"
+        self.name = "Rectangular"
 
     def get_pixmap(self):
         """Returns the pixmaps of the function."""
         return PulseParamters.TXRect()
 
-
 class TXSincFunction(SincFunction):
 
     def __init__(self) -> None:
         super().__init__()
-        self.name = "TX Sinc Pulse"
+        self.name = "Sinc"
 
     def get_pixmap(self):
         """Returns the pixmaps of the function."""
@@ -197,7 +196,7 @@ class TXGaussianFunction(GaussianFunction):
 
     def __init__(self) -> None:
         super().__init__()
-        self.name = "TX Gaussian Pulse"
+        self.name = "Gaussian"
 
     def get_pixmap(self):
         """Returns the pixmaps of the function."""
@@ -208,7 +207,7 @@ class TXCustomFunction(CustomFunction):
 
     def __init__(self) -> None:
         super().__init__()
-        self.name = "TX Custom Pulse"
+        self.name = "Custom"
 
     def get_pixmap(self):
         """Returns the pixmaps of the function."""
