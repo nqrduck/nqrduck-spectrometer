@@ -156,6 +156,7 @@ class FloatSetting(NumericalSetting):
         """
         if state:
             self.value = text
+            self.settings_changed.emit()
 
     @property
     def value(self):
@@ -164,6 +165,7 @@ class FloatSetting(NumericalSetting):
 
     @value.setter
     def value(self, value):
+        logger.debug(f"Setting {self.name} to {value}")
         self._value = float(value)
         self.settings_changed.emit()
 
@@ -210,6 +212,7 @@ class IntSetting(NumericalSetting):
         """
         if state:
             self.value = text
+            self.settings_changed.emit()
 
     @property
     def value(self):
@@ -218,6 +221,7 @@ class IntSetting(NumericalSetting):
 
     @value.setter
     def value(self, value):
+        logger.debug(f"Setting {self.name} to {value}")
         value = int(float(value))
         self._value = value
         self.settings_changed.emit()
