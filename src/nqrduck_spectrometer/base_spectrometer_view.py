@@ -47,7 +47,7 @@ class BaseSpectrometerView(ModuleView):
         for category_count, category in enumerate(self.module.model.settings.keys()):
             logger.debug("Adding settings for category: %s", category)
             category_layout = QVBoxLayout()
-            category_label = QLabel(f"{category}:" % category)
+            category_label = QLabel(f"{category}:")
             category_label.setStyleSheet("font-weight: bold;")
             row = category_count // 2
             column = category_count % 2
