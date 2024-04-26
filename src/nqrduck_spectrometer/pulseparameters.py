@@ -39,6 +39,7 @@ class Option:
     subclasses = []
 
     def __init_subclass__(cls, **kwargs):
+        """Adds the subclass to the list of subclasses."""
         super().__init_subclass__(**kwargs)
         cls.subclasses.append(cls)
 
@@ -105,6 +106,15 @@ class NumericOption(Option):
     def __init__(
         self, name: str, value, is_float=True, min_value=None, max_value=None
     ) -> None:
+        """Initializes the NumericOption.
+        
+        Args:
+            name (str): The name of the option.
+            value: The value of the option.
+            is_float (bool): If the value is a float.
+            min_value: The minimum value of the option.
+            max_value: The maximum value of the option.
+        """
         super().__init__(name, value)
         self.is_float = is_float
         self.min_value = min_value

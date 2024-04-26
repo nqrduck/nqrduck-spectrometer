@@ -2,7 +2,6 @@
 
 import logging
 import numpy as np
-from decimal import Decimal
 from nqrduck.helpers.signalprocessing import SignalProcessing as sp
 from nqrduck.helpers.functions import Function
 
@@ -49,8 +48,7 @@ class Measurement:
         self.IF_frequency = IF_frequency
 
     def apodization(self, function : Function):
-        """
-        Applies apodization to the measurement data.
+        """Applies apodization to the measurement data.
 
         Args:
             function (Function): Apodization function.
