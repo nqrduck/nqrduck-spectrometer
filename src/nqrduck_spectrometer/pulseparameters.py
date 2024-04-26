@@ -36,6 +36,12 @@ class Option:
         value: The value of the option.
     """
 
+    subclasses = []
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.subclasses.append(cls)
+
     def __init__(self, name: str, value) -> None:
         """Initializes the option."""
         self.name = name
@@ -54,7 +60,7 @@ class Option:
         Returns:
             dict: The json representation of the option.
         """
-        return {"name": self.name, "value": self.value, "type": self.TYPE}
+        return {"name": self.name, "value": self.value, "class": self.__class__.__name__}
 
     @classmethod
     def from_json(cls, data) -> Option:
@@ -66,8 +72,9 @@ class Option:
         Returns:
             Option: The option.
         """
-        for subclass in cls.__subclasses__():
-            if subclass.TYPE == data["type"]:
+        for subclass in cls.subclasses:
+            logger.debug(f"Keys data: {data.keys()}")
+            if subclass.__name__ == data["class"]:
                 cls = subclass
                 break
 
@@ -95,9 +102,24 @@ class NumericOption(Option):
 
     TYPE = "Numeric"
 
+    def __init__(
+        self, name: str, value, is_float=True, min_value=None, max_value=None
+    ) -> None:
+        super().__init__(name, value)
+        self.is_float = is_float
+        self.min_value = min_value
+        self.max_value = max_value
+
     def set_value(self, value):
         """Sets the value of the option."""
-        self.value = float(value)
+        if value < self.min_value:
+            self.value = self.min_value
+        elif value >= self.max_value:
+            self.value = self.max_value
+        else:
+            raise ValueError(
+                f"Value {value} is not in the range of {self.min_value} to {self.max_value}. This should have been cought earlier."
+            )
 
 
 class FunctionOption(Option):
@@ -149,7 +171,7 @@ class FunctionOption(Option):
         Returns:
             dict: The json representation of the option.
         """
-        return {"name": self.name, "value": self.value.to_json(), "type": self.TYPE}
+        return {"name": self.name, "value": self.value.to_json(), "class": self.__class__.__name__, "functions" : [function.to_json() for function in self.functions]}
 
     @classmethod
     def from_json(cls, data):
@@ -161,7 +183,9 @@ class FunctionOption(Option):
         Returns:
             FunctionOption: The FunctionOption.
         """
-        functions = [function() for function in Function.__subclasses__()]
+        logger.debug(f"Data: {data}")
+        # These are all available functions
+        functions = [Function.from_json(function) for function in data["functions"]]
         obj = cls(data["name"], functions)
         obj.value = Function.from_json(data["value"])
         return obj
@@ -173,7 +197,7 @@ class FunctionOption(Option):
 
 class TXRectFunction(RectFunction):
     """TX Rectangular function.
-    
+
     Adds the pixmap of the function to the class.
     """
 
@@ -186,11 +210,13 @@ class TXRectFunction(RectFunction):
         """Returns the pixmaps of the function."""
         return PulseParamters.TXRect()
 
+
 class TXSincFunction(SincFunction):
     """TX Sinc function.
-    
+
     Adds the pixmap of the function to the class.
     """
+
     def __init__(self) -> None:
         """Initializes the TX Sinc function."""
         super().__init__()
@@ -203,9 +229,10 @@ class TXSincFunction(SincFunction):
 
 class TXGaussianFunction(GaussianFunction):
     """TX Gaussian function.
-    
+
     Adds the pixmap of the function to the class.
     """
+
     def __init__(self) -> None:
         """Initializes the TX Gaussian function."""
         super().__init__()
@@ -218,9 +245,10 @@ class TXGaussianFunction(GaussianFunction):
 
 class TXCustomFunction(CustomFunction):
     """TX Custom function.
-    
+
     Adds the pixmap of the function to the class.
     """
+
     def __init__(self) -> None:
         """Initializes the TX Custom function."""
         super().__init__()
@@ -236,24 +264,23 @@ class TXPulse(BaseSpectrometerModel.PulseParameter):
 
     Args:
         name (str): The name of the pulse parameter.
-
-    Attributes:
-        RELATIVE_AMPLITUDE (str): The relative amplitude of the pulse.
-        TX_PHASE (str): The phase of the pulse.
-        TX_PULSE_SHAPE (str): The pulse shape.
     """
 
-    RELATIVE_AMPLITUDE = "Relative TX Amplitude"
+    RELATIVE_AMPLITUDE = "Relative TX Amplitude (%)"
     TX_PHASE = "TX Phase"
     TX_PULSE_SHAPE = "TX Pulse Shape"
 
-    def __init__(self, name) -> None:
+    def __init__(self, name: str) -> None:
         """Initializes the TX Pulse Parameter.
 
         It adds the options for the relative amplitude, the phase and the pulse shape.
         """
         super().__init__(name)
-        self.add_option(NumericOption(self.RELATIVE_AMPLITUDE, 0))
+        self.add_option(
+            NumericOption(
+                self.RELATIVE_AMPLITUDE, 0, is_float=False, min_value=0, max_value=100
+            )
+        )
         self.add_option(NumericOption(self.TX_PHASE, 0))
         self.add_option(
             FunctionOption(
