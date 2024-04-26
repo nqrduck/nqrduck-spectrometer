@@ -60,7 +60,11 @@ class Option:
         Returns:
             dict: The json representation of the option.
         """
-        return {"name": self.name, "value": self.value, "class": self.__class__.__name__}
+        return {
+            "name": self.name,
+            "value": self.value,
+            "class": self.__class__.__name__,
+        }
 
     @classmethod
     def from_json(cls, data) -> Option:
@@ -90,8 +94,6 @@ class Option:
 class BooleanOption(Option):
     """Defines a boolean option for a pulse parameter option."""
 
-    TYPE = "Boolean"
-
     def set_value(self, value):
         """Sets the value of the option."""
         self.value = value
@@ -99,8 +101,6 @@ class BooleanOption(Option):
 
 class NumericOption(Option):
     """Defines a numeric option for a pulse parameter option."""
-
-    TYPE = "Numeric"
 
     def __init__(
         self, name: str, value, is_float=True, min_value=None, max_value=None
@@ -121,6 +121,40 @@ class NumericOption(Option):
                 f"Value {value} is not in the range of {self.min_value} to {self.max_value}. This should have been cought earlier."
             )
 
+    def to_json(self):
+        """Returns a json representation of the option.
+
+        Returns:
+            dict: The json representation of the option.
+        """
+        return {
+            "name": self.name,
+            "value": self.value,
+            "class": self.__class__.__name__,
+            "is_float": self.is_float,
+            "min_value": self.min_value,
+            "max_value": self.max_value,
+        }
+    
+    @classmethod
+    def from_json(cls, data):
+        """Creates a NumericOption from a json representation.
+
+        Args:
+            data (dict): The json representation of the NumericOption.
+
+        Returns:
+            NumericOption: The NumericOption.
+        """
+        obj = cls(
+            data["name"],
+            data["value"],
+            is_float=data["is_float"],
+            min_value=data["min_value"],
+            max_value=data["max_value"],
+        )
+        return obj
+
 
 class FunctionOption(Option):
     """Defines a selection option for a pulse parameter option.
@@ -135,8 +169,6 @@ class FunctionOption(Option):
         name (str): The name of the option.
         functions (list): The functions that can be selected.
     """
-
-    TYPE = "Function"
 
     def __init__(self, name, functions) -> None:
         """Initializes the FunctionOption."""
@@ -171,7 +203,12 @@ class FunctionOption(Option):
         Returns:
             dict: The json representation of the option.
         """
-        return {"name": self.name, "value": self.value.to_json(), "class": self.__class__.__name__, "functions" : [function.to_json() for function in self.functions]}
+        return {
+            "name": self.name,
+            "value": self.value.to_json(),
+            "class": self.__class__.__name__,
+            "functions": [function.to_json() for function in self.functions],
+        }
 
     @classmethod
     def from_json(cls, data):
