@@ -88,7 +88,7 @@ class BaseSpectrometerModel(ModuleModel):
             for option in self.options:
                 if option.name == name:
                     return option
-            raise ValueError("Option with name %s not found" % name)
+            raise ValueError(f"Option with name {name} not found")
 
     def __init__(self, module):
         """Initializes the spectrometer model.
@@ -127,7 +127,7 @@ class BaseSpectrometerModel(ModuleModel):
             for setting in self.settings[category]:
                 if setting.name == name:
                     return setting
-        raise ValueError("Setting with name %s not found" % name)
+        raise ValueError(f"Setting with name {name} not found")
 
     def add_pulse_parameter_option(
         self, name: str, pulse_parameter_class: PulseParameter

@@ -141,7 +141,7 @@ class FunctionOption(Option):
         for function in self.functions:
             if function.name == name:
                 return function
-        raise ValueError("Function with name %s not found" % name)
+        raise ValueError(f"Function with name {name} not found")
 
     def to_json(self):
         """Returns a json representation of the option.
@@ -172,8 +172,13 @@ class FunctionOption(Option):
 
 
 class TXRectFunction(RectFunction):
+    """TX Rectangular function.
+    
+    Adds the pixmap of the function to the class.
+    """
 
     def __init__(self) -> None:
+        """Initializes the TX Rectangular function."""
         super().__init__()
         self.name = "Rectangular"
 
@@ -182,8 +187,12 @@ class TXRectFunction(RectFunction):
         return PulseParamters.TXRect()
 
 class TXSincFunction(SincFunction):
-
+    """TX Sinc function.
+    
+    Adds the pixmap of the function to the class.
+    """
     def __init__(self) -> None:
+        """Initializes the TX Sinc function."""
         super().__init__()
         self.name = "Sinc"
 
@@ -193,8 +202,12 @@ class TXSincFunction(SincFunction):
 
 
 class TXGaussianFunction(GaussianFunction):
-
+    """TX Gaussian function.
+    
+    Adds the pixmap of the function to the class.
+    """
     def __init__(self) -> None:
+        """Initializes the TX Gaussian function."""
         super().__init__()
         self.name = "Gaussian"
 
@@ -204,8 +217,12 @@ class TXGaussianFunction(GaussianFunction):
 
 
 class TXCustomFunction(CustomFunction):
-
+    """TX Custom function.
+    
+    Adds the pixmap of the function to the class.
+    """
     def __init__(self) -> None:
+        """Initializes the TX Custom function."""
         super().__init__()
         self.name = "Custom"
 

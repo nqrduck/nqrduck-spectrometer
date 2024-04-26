@@ -38,7 +38,7 @@ class BaseSpectrometerView(ModuleView):
         grid = self._ui_form.gridLayout
         self._ui_form.verticalLayout.removeItem(self._ui_form.gridLayout)
         # Add name of the spectrometer to the view
-        label = QLabel("%s Settings:" % self.module.model.toolbar_name)
+        label = QLabel(f"{self.module.model.toolbar_name} Settings:")
         label.setStyleSheet("font-weight: bold;")
         self._ui_form.verticalLayout.setSpacing(5)
         self._ui_form.verticalLayout.addWidget(label)
@@ -47,7 +47,7 @@ class BaseSpectrometerView(ModuleView):
         for category_count, category in enumerate(self.module.model.settings.keys()):
             logger.debug("Adding settings for category: %s", category)
             category_layout = QVBoxLayout()
-            category_label = QLabel("%s:" % category)
+            category_label = QLabel(f"{category}:" % category)
             category_label.setStyleSheet("font-weight: bold;")
             row = category_count // 2
             column = category_count % 2
