@@ -117,7 +117,7 @@ class PulseSequence:
         def duration(self, duration: str):
             # Duration needs to be a positive number
             try:
-                duration = UnitConverter.to_decimal(duration)
+                duration = UnitConverter.to_float(duration)
             except ValueError:
                 raise ValueError("Duration needs to be a number")
             if duration < 0:
