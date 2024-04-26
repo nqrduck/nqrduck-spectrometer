@@ -1,6 +1,7 @@
 """Contains the PulseSequence class that is used to store a pulse sequence and its events."""
 
 import logging
+import importlib.metadata
 from collections import OrderedDict
 from nqrduck.helpers.unitconverter import UnitConverter
 from nqrduck_spectrometer.pulseparameters import Option
@@ -19,9 +20,14 @@ class PulseSequence:
         events (list): The events of the pulse sequence
     """
 
-    def __init__(self, name) -> None:
+    def __init__(self, name, version = None) -> None:
         """Initializes the pulse sequence."""
         self.name = name
+        # Saving version to check for compatability of saved sequence
+        if version is not None:
+            self.version = version
+        else:
+            self.version = importlib.metadata.version("nqrduck_spectrometer")
         self.events = list()
 
     def get_event_names(self) -> list:
@@ -125,7 +131,8 @@ class PulseSequence:
         Returns:
             dict: The dict with the sequence data
         """
-        data = {"name": self.name, "events": []}
+        # Get the versions of this package
+        data = {"name": self.name, "version" : self.version, "events": []}
         for event in self.events:
             event_data = {
                 "name": event.name,
@@ -156,7 +163,7 @@ class PulseSequence:
         Raises:
             KeyError: If the pulse parameter options are not the same as the ones in the pulse sequence
         """
-        obj = cls(sequence["name"])
+        obj = cls(sequence["name"], version = sequence["version"])
         for event_data in sequence["events"]:
             obj.events.append(cls.Event.load_event(event_data, pulse_parameter_options))
 
