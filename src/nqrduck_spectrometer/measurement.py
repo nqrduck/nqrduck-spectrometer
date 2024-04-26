@@ -2,7 +2,9 @@
 
 import logging
 import numpy as np
+from decimal import Decimal
 from nqrduck.helpers.signalprocessing import SignalProcessing as sp
+from nqrduck.helpers.functions import Function
 
 logger = logging.getLogger(__name__)
 
@@ -39,11 +41,43 @@ class Measurement:
         IF_frequency: float = 0,
     ) -> None:
         """Initializes the measurement."""
+        # Convert to decimal 
         self.tdx = tdx
         self.tdy = tdy
         self.target_frequency = target_frequency
         self.fdx, self.fdy = sp.fft(tdx, tdy, frequency_shift)
         self.IF_frequency = IF_frequency
+
+    def apodization(self, function : Function):
+        """
+        Applies apodization to the measurement data.
+
+        Args:
+            function (Function): Apodization function.
+
+        returns:
+            Measurement : The apodized measurement.
+        """
+        # Get the y data weights from the function
+        duration = (self.tdx[-1] - self.tdx[0]) * 1e-6
+
+        resolution = duration / len(self.tdx)
+
+        logger.debug("Resolution: %s", resolution)
+
+        y_weight = function.get_pulse_amplitude(duration, resolution)
+
+        tdy_measurement = self.tdy * y_weight
+
+        apodized_measurement = Measurement(
+            self.tdx,
+            tdy_measurement,
+            target_frequency=self.target_frequency,
+            IF_frequency=self.IF_frequency,
+        )
+
+        return apodized_measurement
+
 
     # Data saving and loading
 
