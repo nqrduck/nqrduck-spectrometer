@@ -163,7 +163,12 @@ class PulseSequence:
         Raises:
             KeyError: If the pulse parameter options are not the same as the ones in the pulse sequence
         """
-        obj = cls(sequence["name"], version = sequence["version"])
+        try:
+            obj = cls(sequence["name"], version = sequence["version"])
+        except KeyError:
+            logger.error("Pulse sequence version not found")
+            raise KeyError("Pulse sequence version not found")
+            
         for event_data in sequence["events"]:
             obj.events.append(cls.Event.load_event(event_data, pulse_parameter_options))
 
