@@ -15,6 +15,7 @@ class Measurement:
     Every spectrometer should adhere to this data structure in order to be compatible with the rest of the nqrduck.
 
     Args:
+        name (str): Name of the measurement.
         tdx (np.array): Time axis for the x axis of the measurement data.
         tdy (np.array): Time axis for the y axis of the measurement data.
         target_frequency (float): Target frequency of the measurement.
@@ -33,21 +34,22 @@ class Measurement:
 
     def __init__(
         self,
-        tdx,
-        tdy,
-        target_frequency,
+        name: str,
+        tdx: np.array,
+        tdy: np.array,
+        target_frequency: float,
         frequency_shift: float = 0,
         IF_frequency: float = 0,
     ) -> None:
         """Initializes the measurement."""
-        # Convert to decimal 
+        self.name = name
         self.tdx = tdx
         self.tdy = tdy
         self.target_frequency = target_frequency
         self.fdx, self.fdy = sp.fft(tdx, tdy, frequency_shift)
         self.IF_frequency = IF_frequency
 
-    def apodization(self, function : Function):
+    def apodization(self, function: Function):
         """Applies apodization to the measurement data.
 
         Args:
@@ -76,7 +78,6 @@ class Measurement:
 
         return apodized_measurement
 
-
     # Data saving and loading
 
     def to_json(self):
@@ -86,6 +87,7 @@ class Measurement:
             dict : The measurement in json-compatible format.
         """
         return {
+            "name": self.name,
             "tdx": self.tdx.tolist(),
             "tdy": [
                 [x.real, x.imag] for x in self.tdy
@@ -106,6 +108,7 @@ class Measurement:
         """
         tdy = np.array([complex(y[0], y[1]) for y in json["tdy"]])
         return cls(
+            json["name"],
             np.array(json["tdx"]),
             tdy,
             target_frequency=json["target_frequency"],
@@ -113,6 +116,15 @@ class Measurement:
         )
 
     # Measurement data
+    @property
+    def name(self):
+        """Name of the measurement."""
+        return self._name
+    
+    @name.setter
+    def name(self, value):
+        self._name = value
+
     @property
     def tdx(self):
         """Time axis for the x axis of the measurement data."""
