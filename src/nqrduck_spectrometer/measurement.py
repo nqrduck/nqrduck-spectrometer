@@ -70,6 +70,7 @@ class Measurement:
         tdy_measurement = self.tdy * y_weight
 
         apodized_measurement = Measurement(
+            self.name,
             self.tdx,
             tdy_measurement,
             target_frequency=self.target_frequency,
