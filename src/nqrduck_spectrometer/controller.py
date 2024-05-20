@@ -36,7 +36,7 @@ class SpectrometerController(ModuleController):
                 continue
 
             # Import the module
-            logger.debug("Loading spectromter module: %s", module_name)
+            logger.debug("Loading spectrometer module: %s", module_name)
             module.model.widget_changed.connect(
                 self._module.view.on_spectrometer_widget_changed
             )
@@ -100,8 +100,10 @@ class SpectrometerController(ModuleController):
         self.measurement_thread.finished.connect(self.measurement_thread.deleteLater)
         self.measurement_thread.start()
 
+
 class MeasurementWorker(QObject):
     """Worker class to run the measurement in a separate thread."""
+
     finished = pyqtSignal()
 
     def __init__(self, controller):
@@ -113,4 +115,3 @@ class MeasurementWorker(QObject):
         """Run the measurement."""
         self.controller.on_measurement_start()
         self.finished.emit()
-
