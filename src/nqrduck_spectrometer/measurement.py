@@ -140,14 +140,19 @@ class Measurement:
             Measurement : The measurement.
         """
         tdy = np.array([complex(y[0], y[1]) for y in json["tdy"]])
-        return cls(
+        obj = cls(
             json["name"],
             np.array(json["tdx"]),
             tdy,
             target_frequency=json["target_frequency"],
             IF_frequency=json["IF_frequency"],
-            fits=[Fit.from_json(fit) for fit in json["fits"]],
         )
+
+        # Add fits
+        for fit in json["fits"]:
+            obj.add_fit(Fit.from_json(fit, obj))
+
+        return obj
 
     # Measurement data
     @property
@@ -223,6 +228,12 @@ class Fit():
 
     A fit has a name, a nqrduck function and a strategy for the algorithm to use.
     """
+    subclasses = []
+
+    def __init_subclass__(cls, **kwargs):
+        """Adds the subclass to the list of subclasses."""
+        super().__init_subclass__(**kwargs)
+        cls.subclasses.append(cls)
 
     def __init__(self, name: str, domain: str, measurement : Measurement) -> None:
         """Initializes the fit."""
@@ -230,8 +241,10 @@ class Fit():
         self.domain = domain
         self.measurement = measurement
 
+        self.fit()
+
     def fit(self):
-        """Fits the measurement data, sets the x and y data and returns the fit parameters and covariance. """
+        """Fits the measurement data, sets the x and y data and sets the fit parameters and covariance. """
         if self.domain == "time":
             x = self.measurement.tdx
             y = self.measurement.tdy
@@ -246,9 +259,9 @@ class Fit():
 
         self.x = x
         self.y = self.fit_function(x, *parameters)
-
-        
-        return parameters, covariance
+    
+        self.parameters = parameters
+        self.covariance = covariance
     
     def get_fit_parameters_string(self):
         """Get the fit parameters as a string.
@@ -287,22 +300,27 @@ class Fit():
         """
         return {
             "name": self.name,
-            "function": self.function.to_json(),
-            "strategy": self.strategy,
+            "class": self.__class__.__name__,
         }
     
     @classmethod
-    def from_json(cls, json: dict):
+    def from_json(cls, data: dict, measurement : Measurement):
         """Converts the json format to a fit.
 
         Args:
-            json (dict) : The fit in json-compatible format.
+            data (dict) : The fit in json-compatible format.
+            measurement (Measurement) : The measurement.
 
         Returns:
             Fit : The fit.
         """
-        function = Function.from_json(json["function"])
-        return cls(json["name"], function, json["strategy"])
+        for subclass in cls.subclasses:
+            logger.debug(f"Keys data: {data.keys()}")
+            if subclass.__name__ == data["class"]:
+                cls = subclass
+                break
+
+        return cls(measurement, data["name"])
     
     @property
     def x(self):
@@ -324,18 +342,18 @@ class Fit():
     
 class T2StarFit(Fit):
 
-    def __init__(self, measurement: Measurement) -> None:
-        self.name = "T2*"
-        self.domain = "time"
-        self.measurement = measurement
+    def __init__(self, measurement: Measurement, name = "T2*") -> None:
+        domain = "time"
+        measurement = measurement
+        super().__init__(name, domain, measurement)
     
     def fit(self):
-        parameters, covariance = super().fit()
+        super().fit()
         # Create dict with fit parameters and covariance
         self.parameters = {
-            "S0": parameters[0],
-            "T2Star": parameters[1],
-            "covariance": covariance
+            "S0": self.parameters[0],
+            "T2Star": self.parameters[1],
+            "covariance": self.covariance
         }
 
     def fit_function (self, t, S0, T2Star):
