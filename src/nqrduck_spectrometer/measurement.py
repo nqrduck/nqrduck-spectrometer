@@ -91,6 +91,25 @@ class Measurement:
         """
         self.fits.append(fit)
 
+    def delete_fit(self, fit):
+        """Deletes a fit from the measurement.
+        
+        Args:
+            fit (Fit): The fit to delete.
+        """
+
+        self.fits.remove(fit)
+
+    def edit_fit_name(self, fit, name : str):
+        """Edits the name of a fit.
+
+        Args:
+            fit (Fit): The fit to edit.
+            name (str): The new name.
+        """
+        logger.debug(f"Editing fit name to {name}.")
+        fit.name = name
+
     # Data saving and loading
 
     def to_json(self):
@@ -107,6 +126,7 @@ class Measurement:
             ],  # Convert complex numbers to list
             "target_frequency": self.target_frequency,
             "IF_frequency": self.IF_frequency,
+            "fits": [fit.to_json() for fit in self.fits],
         }
 
     @classmethod
@@ -126,6 +146,7 @@ class Measurement:
             tdy,
             target_frequency=json["target_frequency"],
             IF_frequency=json["IF_frequency"],
+            fits=[Fit.from_json(fit) for fit in json["fits"]],
         )
 
     # Measurement data
