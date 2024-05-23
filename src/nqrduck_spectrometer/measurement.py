@@ -336,3 +336,28 @@ class T2StarFit(Fit):
     def initial_guess(self) -> list:
         """Initial guess for the T2* fit."""
         return [1, 1]
+    
+class LorentzianFit(Fit):
+    """Lorentzian fit for measurement data."""
+
+    def __init__(self, measurement: Measurement, name: str = "Lorentzian") -> None:
+        """Initializes the Lorentzian fit."""
+        super().__init__(name, "frequency", measurement)
+
+    def fit(self) -> None:
+        """Fits the measurement data and sets the fit parameters and covariance."""
+        super().fit()
+        self.parameters = {
+            "S0": self.parameters[0],
+            "T2Star": self.parameters[1],
+            "covariance": self.covariance,
+        }
+        logger.debug("Lorentzian fit parameters: %s", self.parameters)
+
+    def fit_function(self, f: np.array, S0: float, T2Star: float) -> np.array:
+        """The Lorentzian fit function used for curve fitting."""
+        return S0 / (1 + (2 * np.pi * f * T2Star) ** 2)
+
+    def initial_guess(self) -> list:
+        """Initial guess for the Lorentzian fit."""
+        return [1, 1]
