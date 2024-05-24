@@ -22,6 +22,8 @@ class BaseSpectrometerModel(ModuleModel):
         pulse_parameter_options (OrderedDict) : The pulse parameter options of the spectrometer
     """
 
+    SETTING_FILE_EXTENSION = "setduck"
+
     settings: OrderedDict
     pulse_parameter_options: OrderedDict
 

@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
     QSizePolicy,
     QSpacerItem,
     QVBoxLayout,
+    QPushButton,
 )
 from nqrduck.module.module_view import ModuleView
 from nqrduck.assets.icons import Logos
@@ -82,7 +83,7 @@ class BaseSpectrometerView(ModuleView):
                 layout.addWidget(edit_widget)
                 layout.addStretch(1)
                 layout.addWidget(icon_label)
-                
+
                 # Add the layout to the vertical layout of the widget
                 category_layout.addLayout(layout)
 
@@ -91,3 +92,43 @@ class BaseSpectrometerView(ModuleView):
 
         # Push all the settings to the top of the widget
         self._ui_form.verticalLayout.addStretch(1)
+
+        # Now we add a save and load button to the widget
+        self.button_layout = QHBoxLayout()
+        self.save_button = QPushButton("Save Settings")
+        self.save_button.setIcon(Logos.Save16x16())
+        #self.save_button.setIconSize(self.save_button.size())
+        self.save_button.clicked.connect(self.on_save_button_clicked)
+        self.button_layout.addWidget(self.save_button)
+
+        self.load_button = QPushButton("Load Settings")
+        self.load_button.setIcon(Logos.Load16x16())
+        #self.load_button.setIconSize(self.load_button.size())
+        self.load_button.clicked.connect(self.on_load_button_clicked)
+        self.button_layout.addWidget(self.load_button)
+
+        self._ui_form.verticalLayout.addLayout(self.button_layout)
+
+
+    def on_save_button_clicked(self):
+        """This method is called when the save button is clicked."""
+        logger.debug("Save button clicked")
+        # Open a dialog to save the settings to a file
+        file_manager = self.FileManager(
+            extension=self.module.model.SETTING_FILE_EXTENSION, parent=self
+        )
+        path = file_manager.saveFileDialog()
+        if path:
+            self.module.controller.save_settings(path)
+
+    def on_load_button_clicked(self):
+        """This method is called when the load button is clicked."""
+        logger.debug("Load button clicked")
+        # Open a dialog to load the settings from a file
+        file_manager = self.FileManager(
+            extension=self.module.model.SETTING_FILE_EXTENSION, parent=self
+        )
+        path = file_manager.loadFileDialog()
+        self.module.controller.load_settings(path)
+        if path:
+            self.module.controller.load_settings(path)
