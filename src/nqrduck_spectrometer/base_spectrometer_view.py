@@ -93,23 +93,27 @@ class BaseSpectrometerView(ModuleView):
         # Push all the settings to the top of the widget
         self._ui_form.verticalLayout.addStretch(1)
 
-        # Now we add a save and load button to the widget
+       # Now we add a save and load button to the widget
         self.button_layout = QHBoxLayout()
+
+        # Save Button
         self.save_button = QPushButton("Save Settings")
         self.save_button.setIcon(Logos.Save16x16())
-        #self.save_button.setIconSize(self.save_button.size())
+        self.save_button.setIconSize(Logos.Save16x16().availableSizes()[0])
         self.save_button.clicked.connect(self.on_save_button_clicked)
         self.button_layout.addWidget(self.save_button)
 
+        # Load Button
         self.load_button = QPushButton("Load Settings")
         self.load_button.setIcon(Logos.Load16x16())
-        #self.load_button.setIconSize(self.load_button.size())
         self.load_button.clicked.connect(self.on_load_button_clicked)
         self.button_layout.addWidget(self.load_button)
-
+        self.load_button.setIconSize(Logos.Load16x16().availableSizes()[0])
+        
+        self.button_layout.addStretch(1)
+        
         self._ui_form.verticalLayout.addLayout(self.button_layout)
-
-
+        
     def on_save_button_clicked(self):
         """This method is called when the save button is clicked."""
         logger.debug("Save button clicked")
