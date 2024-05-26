@@ -1,8 +1,10 @@
 """Base class for all spectrometer controllers."""
 
+import logging
 import ast
 from nqrduck.module.module_controller import ModuleController
 
+logger = logging.getLogger(__name__)
 
 class BaseSpectrometerController(ModuleController):
     """The base class for all spectrometer controllers."""
@@ -10,6 +12,11 @@ class BaseSpectrometerController(ModuleController):
     def __init__(self, module):
         """Initializes the spectrometer controller."""
         super().__init__(module)
+
+    def on_loading(self):
+        """Called when the module is loading."""
+        logger.debug("Loading spectrometer controller")
+        self.module.model.load_default_settings()
 
     def save_settings(self, path: str) -> None:
         """Saves the settings of the spectrometer."""

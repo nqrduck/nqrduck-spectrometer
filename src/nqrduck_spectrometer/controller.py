@@ -43,6 +43,8 @@ class SpectrometerController(ModuleController):
             logger.debug("Adding spectrometer to spectrometer model: %s", module_name)
             self._module.model.add_spectrometers(module_name, module)
 
+            module.controller.on_loading()
+
         self._module.view.create_menu_entry()
 
     def process_signals(self, key: str, value: object) -> None:

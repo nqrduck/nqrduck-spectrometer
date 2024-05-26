@@ -96,6 +96,11 @@ class BaseSpectrometerView(ModuleView):
        # Now we add a save and load button to the widget
         self.button_layout = QHBoxLayout()
 
+        # Default Settings Button
+        self.default_button = QPushButton("Default Settings")
+        self.default_button.clicked.connect(self.module.model.set_default_settings)
+        self.button_layout.addWidget(self.default_button)
+
         # Save Button
         self.save_button = QPushButton("Save Settings")
         self.save_button.setIcon(Logos.Save16x16())
