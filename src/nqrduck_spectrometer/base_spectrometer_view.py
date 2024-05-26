@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import (
     QSpacerItem,
     QVBoxLayout,
     QPushButton,
+    QDialog,
 )
 from nqrduck.module.module_view import ModuleView
 from nqrduck.assets.icons import Logos
@@ -93,12 +94,12 @@ class BaseSpectrometerView(ModuleView):
         # Push all the settings to the top of the widget
         self._ui_form.verticalLayout.addStretch(1)
 
-       # Now we add a save and load button to the widget
+        # Now we add a save and load button to the widget
         self.button_layout = QHBoxLayout()
 
         # Default Settings Button
         self.default_button = QPushButton("Default Settings")
-        self.default_button.clicked.connect(self.module.model.set_default_settings)
+        self.default_button.clicked.connect(self.on_default_button_clicked)
         self.button_layout.addWidget(self.default_button)
 
         # Save Button
@@ -114,11 +115,11 @@ class BaseSpectrometerView(ModuleView):
         self.load_button.clicked.connect(self.on_load_button_clicked)
         self.button_layout.addWidget(self.load_button)
         self.load_button.setIconSize(Logos.Load16x16().availableSizes()[0])
-        
+
         self.button_layout.addStretch(1)
-        
+
         self._ui_form.verticalLayout.addLayout(self.button_layout)
-        
+
     def on_save_button_clicked(self):
         """This method is called when the save button is clicked."""
         logger.debug("Save button clicked")
@@ -141,3 +142,57 @@ class BaseSpectrometerView(ModuleView):
         self.module.controller.load_settings(path)
         if path:
             self.module.controller.load_settings(path)
+
+    def on_default_button_clicked(self):
+        """This method is called when the default button is clicked."""
+        logger.debug("Default button clicked")
+        dialog = self.DefaultSettingsDialog(self)
+        dialog.exec()
+
+    class DefaultSettingsDialog(QDialog):
+        def __init__(self, parent=None):
+            super().__init__(parent)
+            self.parent = parent
+            self.setWindowTitle("Default Settings")
+
+            self.layout = QVBoxLayout()
+
+            # Either we set the current settings as default
+            self.set_current_button = QPushButton("Set Current Settings as Default")
+            self.set_current_button.clicked.connect(
+                self.on_set_current_button_clicked
+            )
+
+            # Or we clear the default settings
+            self.clear_button = QPushButton("Clear Default Settings")
+            self.clear_button.clicked.connect(
+                self.on_clear_button_clicked
+            )
+
+            self.layout.addWidget(self.set_current_button)
+            self.layout.addWidget(self.clear_button)
+
+            self.setLayout(self.layout)
+
+            # Ok Button
+            self.ok_button = QPushButton("Ok")
+            self.ok_button.clicked.connect(self.accept)
+            self.layout.addWidget(self.ok_button)
+
+        def on_set_current_button_clicked(self):
+            """This method is called when the set current button is clicked."""
+            logger.debug("Set current button clicked")
+            self.parent.module.model.set_default_settings()
+            # Show notification that the settings have been set as default
+            self.parent.module.nqrduck_signal.emit(
+                "notification", ["Info", "Settings have been set as default."]
+            )
+
+        def on_clear_button_clicked(self):
+            """This method is called when the clear button is clicked."""
+            logger.debug("Clear button clicked")
+            self.parent.module.model.clear_default_settings()
+            # Show notification that the default settings have been cleared
+            self.parent.module.nqrduck_signal.emit(
+                "notification", ["Info", "Default settings have been cleared."]
+            )

@@ -122,6 +122,10 @@ class BaseSpectrometerModel(ModuleModel):
                     logger.debug(f"Loading default value for {setting_string}")
                     setting.value = self.default_settings.value(setting_string)
 
+    def clear_default_settings(self) -> None:
+        """Clear the default settings of the spectrometer."""
+        self.default_settings.clear()
+
     def add_setting(self, setting: Setting, category: str) -> None:
         """Adds a setting to the spectrometer.
 
