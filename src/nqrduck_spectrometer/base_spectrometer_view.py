@@ -150,7 +150,9 @@ class BaseSpectrometerView(ModuleView):
         dialog.exec()
 
     class DefaultSettingsDialog(QDialog):
+        """Dialog to set or clear the default settings of the spectrometer."""
         def __init__(self, parent=None):
+            """Initializes the default settings dialog."""
             super().__init__(parent)
             self.parent = parent
             self.setWindowTitle("Default Settings")

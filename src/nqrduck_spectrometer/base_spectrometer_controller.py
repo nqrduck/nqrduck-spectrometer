@@ -35,7 +35,7 @@ class BaseSpectrometerController(ModuleController):
 
     def load_settings(self, path: str) -> None:
         """Loads the settings of the spectrometer."""
-        with open(path, "r") as f:
+        with open(path) as f:
             json = f.read()
 
         # string to dict
