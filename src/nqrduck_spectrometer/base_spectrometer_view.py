@@ -8,6 +8,8 @@ from PyQt6.QtWidgets import (
     QSizePolicy,
     QSpacerItem,
     QVBoxLayout,
+    QPushButton,
+    QDialog,
 )
 from nqrduck.module.module_view import ModuleView
 from nqrduck.assets.icons import Logos
@@ -82,7 +84,7 @@ class BaseSpectrometerView(ModuleView):
                 layout.addWidget(edit_widget)
                 layout.addStretch(1)
                 layout.addWidget(icon_label)
-                
+
                 # Add the layout to the vertical layout of the widget
                 category_layout.addLayout(layout)
 
@@ -91,3 +93,108 @@ class BaseSpectrometerView(ModuleView):
 
         # Push all the settings to the top of the widget
         self._ui_form.verticalLayout.addStretch(1)
+
+        # Now we add a save and load button to the widget
+        self.button_layout = QHBoxLayout()
+
+        # Default Settings Button
+        self.default_button = QPushButton("Default Settings")
+        self.default_button.clicked.connect(self.on_default_button_clicked)
+        self.button_layout.addWidget(self.default_button)
+
+        # Save Button
+        self.save_button = QPushButton("Save Settings")
+        self.save_button.setIcon(Logos.Save16x16())
+        self.save_button.setIconSize(Logos.Save16x16().availableSizes()[0])
+        self.save_button.clicked.connect(self.on_save_button_clicked)
+        self.button_layout.addWidget(self.save_button)
+
+        # Load Button
+        self.load_button = QPushButton("Load Settings")
+        self.load_button.setIcon(Logos.Load16x16())
+        self.load_button.clicked.connect(self.on_load_button_clicked)
+        self.button_layout.addWidget(self.load_button)
+        self.load_button.setIconSize(Logos.Load16x16().availableSizes()[0])
+
+        self.button_layout.addStretch(1)
+
+        self._ui_form.verticalLayout.addLayout(self.button_layout)
+
+    def on_save_button_clicked(self):
+        """This method is called when the save button is clicked."""
+        logger.debug("Save button clicked")
+        # Open a dialog to save the settings to a file
+        file_manager = self.FileManager(
+            extension=self.module.model.SETTING_FILE_EXTENSION, parent=self
+        )
+        path = file_manager.saveFileDialog()
+        if path:
+            self.module.controller.save_settings(path)
+
+    def on_load_button_clicked(self):
+        """This method is called when the load button is clicked."""
+        logger.debug("Load button clicked")
+        # Open a dialog to load the settings from a file
+        file_manager = self.FileManager(
+            extension=self.module.model.SETTING_FILE_EXTENSION, parent=self
+        )
+        path = file_manager.loadFileDialog()
+        self.module.controller.load_settings(path)
+        if path:
+            self.module.controller.load_settings(path)
+
+    def on_default_button_clicked(self):
+        """This method is called when the default button is clicked."""
+        logger.debug("Default button clicked")
+        dialog = self.DefaultSettingsDialog(self)
+        dialog.exec()
+
+    class DefaultSettingsDialog(QDialog):
+        """Dialog to set or clear the default settings of the spectrometer."""
+        def __init__(self, parent=None):
+            """Initializes the default settings dialog."""
+            super().__init__(parent)
+            self.parent = parent
+            self.setWindowTitle("Default Settings")
+
+            self.layout = QVBoxLayout()
+
+            # Either we set the current settings as default
+            self.set_current_button = QPushButton("Set Current Settings as Default")
+            self.set_current_button.clicked.connect(
+                self.on_set_current_button_clicked
+            )
+
+            # Or we clear the default settings
+            self.clear_button = QPushButton("Clear Default Settings")
+            self.clear_button.clicked.connect(
+                self.on_clear_button_clicked
+            )
+
+            self.layout.addWidget(self.set_current_button)
+            self.layout.addWidget(self.clear_button)
+
+            self.setLayout(self.layout)
+
+            # Ok Button
+            self.ok_button = QPushButton("Ok")
+            self.ok_button.clicked.connect(self.accept)
+            self.layout.addWidget(self.ok_button)
+
+        def on_set_current_button_clicked(self):
+            """This method is called when the set current button is clicked."""
+            logger.debug("Set current button clicked")
+            self.parent.module.model.set_default_settings()
+            # Show notification that the settings have been set as default
+            self.parent.module.nqrduck_signal.emit(
+                "notification", ["Info", "Settings have been set as default."]
+            )
+
+        def on_clear_button_clicked(self):
+            """This method is called when the clear button is clicked."""
+            logger.debug("Clear button clicked")
+            self.parent.module.model.clear_default_settings()
+            # Show notification that the default settings have been cleared
+            self.parent.module.nqrduck_signal.emit(
+                "notification", ["Info", "Default settings have been cleared."]
+            )

@@ -2,6 +2,7 @@
 
 import logging
 from collections import OrderedDict
+from PyQt6.QtCore import QSettings
 from PyQt6.QtGui import QPixmap
 from nqrduck.module.module_model import ModuleModel
 from .settings import Setting
@@ -21,6 +22,8 @@ class BaseSpectrometerModel(ModuleModel):
         settings (OrderedDict) : The settings of the spectrometer
         pulse_parameter_options (OrderedDict) : The pulse parameter options of the spectrometer
     """
+
+    SETTING_FILE_EXTENSION = "setduck"
 
     settings: OrderedDict
     pulse_parameter_options: OrderedDict
@@ -99,6 +102,29 @@ class BaseSpectrometerModel(ModuleModel):
         super().__init__(module)
         self.settings = OrderedDict()
         self.pulse_parameter_options = OrderedDict()
+        self.default_settings = QSettings("nqrduck-spectrometer", "nqrduck")
+
+    def set_default_settings(self) -> None:
+        """Sets the default settings of the spectrometer."""
+        self.default_settings.clear()
+        for category in self.settings.keys():
+            for setting in self.settings[category]:
+                setting_string = f"{self.module.model.name},{setting.name}"
+                self.default_settings.setValue(setting_string, setting.value)
+                logger.debug(f"Setting default value for {setting_string} to {setting.value}")
+
+    def load_default_settings(self) -> None:
+        """Load the default settings of the spectrometer."""
+        for category in self.settings.keys():
+            for setting in self.settings[category]:
+                setting_string = f"{self.module.model.name},{setting.name}"
+                if self.default_settings.contains(setting_string):
+                    logger.debug(f"Loading default value for {setting_string}")
+                    setting.value = self.default_settings.value(setting_string)
+
+    def clear_default_settings(self) -> None:
+        """Clear the default settings of the spectrometer."""
+        self.default_settings.clear()
 
     def add_setting(self, setting: Setting, category: str) -> None:
         """Adds a setting to the spectrometer.
