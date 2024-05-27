@@ -4,6 +4,8 @@
 
 - Implemented loading and saving of settings and default settings (`6496ec6824da33fa41a38e26fdcac9a03ceb51fb`)
 
+- Added fitting of measurement data (`d43639c2f9796d5055dd01bd2f36bae43877bfe8`)
+
 ## Version 0.0.11 (20-05-2024)
 
 - Measurements are now run in a  separate worker thread to prevent the GUI from freezing (`27865aa6d44158e74c0e537be8407c12b4e3725b`)
