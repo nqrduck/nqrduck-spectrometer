@@ -37,6 +37,27 @@ class PulseSequence:
             list: The names of the events
         """
         return [event.name for event in self.events]
+    
+    def add_event(self, event_name: str, duration: float) -> None:
+        """Add a new event to the pulse sequence.
+
+        Args:
+            event_name (str): The name of the event
+            duration (float): The duration of the event
+        """
+        self.events.append(self.Event(event_name, f"{float(duration):.16g}u"))
+        
+
+    def delete_event(self, event_name: str) -> None:
+        """Deletes an event from the pulse sequence.
+
+        Args:
+            event_name (str): The name of the event to delete
+        """
+        for event in self.events:
+            if event.name == event_name:
+                self.events.remove(event)
+                break
 
     class Event:
         """An event is a part of a pulse sequence. It has a name and a duration and different parameters that have to be set.

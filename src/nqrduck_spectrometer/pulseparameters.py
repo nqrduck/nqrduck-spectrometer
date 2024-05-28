@@ -8,6 +8,7 @@ from __future__ import annotations
 import logging
 
 from numpy.core.multiarray import array as array
+from PyQt6.QtCore import pyqtSignal
 
 from nqrduck.assets.icons import PulseParamters
 from nqrduck.helpers.functions import (
@@ -37,6 +38,7 @@ class Option:
     """
 
     subclasses = []
+    value_changed = pyqtSignal()
 
     def __init_subclass__(cls, **kwargs):
         """Adds the subclass to the list of subclasses."""
@@ -98,34 +100,45 @@ class BooleanOption(Option):
     def set_value(self, value):
         """Sets the value of the option."""
         self.value = value
+        self.value_changed.emit()
 
 
 class NumericOption(Option):
     """Defines a numeric option for a pulse parameter option."""
 
     def __init__(
-        self, name: str, value, is_float=True, min_value=None, max_value=None
+        self,
+        name: str,
+        value,
+        is_float=True,
+        min_value=None,
+        max_value=None,
+        slider=False,
     ) -> None:
         """Initializes the NumericOption.
-        
+
         Args:
             name (str): The name of the option.
             value: The value of the option.
             is_float (bool): If the value is a float.
             min_value: The minimum value of the option.
             max_value: The maximum value of the option.
+            slider (bool): If the option should be displayed as a slider.
         """
         super().__init__(name, value)
         self.is_float = is_float
         self.min_value = min_value
         self.max_value = max_value
+        self.slider = slider
 
     def set_value(self, value):
         """Sets the value of the option."""
         if value < self.min_value:
             self.value = self.min_value
+            self.value_changed.emit()
         elif value >= self.max_value:
             self.value = self.max_value
+            self.value_changed.emit() 
         else:
             raise ValueError(
                 f"Value {value} is not in the range of {self.min_value} to {self.max_value}. This should have been cought earlier."
@@ -145,7 +158,7 @@ class NumericOption(Option):
             "min_value": self.min_value,
             "max_value": self.max_value,
         }
-    
+
     @classmethod
     def from_json(cls, data):
         """Creates a NumericOption from a json representation.
@@ -192,6 +205,7 @@ class FunctionOption(Option):
             value: The value of the option.
         """
         self.value = value
+        self.value_changed.emit()
 
     def get_function_by_name(self, name):
         """Returns the function with the given name.
@@ -316,6 +330,8 @@ class TXPulse(BaseSpectrometerModel.PulseParameter):
     RELATIVE_AMPLITUDE = "Relative TX Amplitude (%)"
     TX_PHASE = "TX Phase"
     TX_PULSE_SHAPE = "TX Pulse Shape"
+    N_PHASE_CYCLES = "Number of Phase Cycles"
+    PHASE_CYCLE_LEVEL = "Phase Cycle Level"
 
     def __init__(self, name: str) -> None:
         """Initializes the TX Pulse Parameter.
@@ -325,10 +341,25 @@ class TXPulse(BaseSpectrometerModel.PulseParameter):
         super().__init__(name)
         self.add_option(
             NumericOption(
-                self.RELATIVE_AMPLITUDE, 0, is_float=False, min_value=0, max_value=100
+                self.RELATIVE_AMPLITUDE,
+                0,
+                is_float=False,
+                min_value=0,
+                max_value=100,
+                slider=True,
             )
         )
         self.add_option(NumericOption(self.TX_PHASE, 0))
+        self.add_option(
+            NumericOption(
+                self.N_PHASE_CYCLES, 1, is_float=False, min_value=1, max_value=360
+            )
+        )
+        self.add_option(
+            NumericOption(
+                self.PHASE_CYCLE_LEVEL, 0, is_float=False, min_value=0, max_value=10
+            )
+        )
         self.add_option(
             FunctionOption(
                 self.TX_PULSE_SHAPE,
