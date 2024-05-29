@@ -30,6 +30,7 @@ dependencies = [
     "sympy",
     "numpy",
     "scipy",
+    "quackseq",
 ]
 
 [project.optional-dependencies]

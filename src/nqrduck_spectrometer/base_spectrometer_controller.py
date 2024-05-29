@@ -16,7 +16,7 @@ class BaseSpectrometerController(ModuleController):
     def on_loading(self):
         """Called when the module is loading."""
         logger.debug("Loading spectrometer controller")
-        self.module.model.load_default_settings()
+        #self.module.model.load_default_settings()
 
     def save_settings(self, path: str) -> None:
         """Saves the settings of the spectrometer."""
