@@ -97,7 +97,8 @@ class VisualFloatSetting(VisualSetting):
             if self.spin_box:
                 self.widget.spin_box.setValue(self.setting.value)
             else:
-                self.widget.setText(str(self.setting.value))
+                value = float(value)
+                self.widget.set_value(value)
 
 
 class VisualIntSetting(VisualSetting):

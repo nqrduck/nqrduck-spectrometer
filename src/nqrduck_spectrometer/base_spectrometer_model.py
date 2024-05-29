@@ -18,8 +18,10 @@ class BaseSpectrometerModel(ModuleModel):
         module (Module) : The module that the spectrometer is connected to
 
     Attributes:
-        settings (OrderedDict) : The settings of the spectrometer
-        pulse_parameter_options (OrderedDict) : The pulse parameter options of the spectrometer
+        SETTING_FILE_EXTENSION (str) : The file extension for the settings file
+        default_settings (QSettings) : The default settings of the spectrometer
+        quackseq_model (QuackseqModel) : The quackseq model of the spectrometer
+        quackseq_visuals (dict) : The visual settings of the spectrometer
     """
 
     SETTING_FILE_EXTENSION = "setduck"
@@ -62,18 +64,24 @@ class BaseSpectrometerModel(ModuleModel):
     def set_default_settings(self) -> None:
         """Sets the default settings of the spectrometer."""
         self.default_settings.clear()
-        for category in self.settings.keys():
-            for setting in self.settings[category]:
-                setting_string = f"{self.module.model.name},{setting.name}"
-                self.default_settings.setValue(setting_string, setting.value)
-                logger.debug(f"Setting default value for {setting_string} to {setting.value}")
+        settings = self.quackseq_model.settings
+
+        for setting in settings.values():
+            setting_string = f"{self.module.model.name},{setting.name}"
+            self.default_settings.setValue(setting_string, setting.value)
+            logger.debug(f"Setting default value for {setting_string} to {setting.value}")
 
     def load_default_settings(self) -> None:
         """Load the default settings of the spectrometer."""
-        for setting in self.quackseq_model.settings.values():
-            setting_string = f"{self.module.model.name},{setting.name}"
-            setting.value = self.default_settings.value(setting_string)
-            logger.debug(f"Setting {setting_string} to {setting.value}")
+        visual_settings = self.quackseq_visuals
+
+        for visual_setting in visual_settings.values():
+            setting_string = f"{self.module.model.name},{visual_setting.setting.name}"
+            value = self.default_settings.value(setting_string)
+            if value is None:
+                logger.debug(f"Setting {setting_string} not found in default settings")
+                continue
+            visual_setting.value = value
 
     def clear_default_settings(self) -> None:
         """Clear the default settings of the spectrometer."""
