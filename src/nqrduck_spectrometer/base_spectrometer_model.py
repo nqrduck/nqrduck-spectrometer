@@ -3,8 +3,8 @@
 import logging
 from PyQt6.QtCore import QSettings
 from nqrduck.module.module_model import ModuleModel
-from quackseq.spectrometer.spectrometer_settings import FloatSetting, BooleanSetting, IntSetting, StringSetting
-from .visual_settings import VisualFloatSetting, VisualIntSetting, VisualBooleanSetting, VisualStringSetting
+from quackseq.spectrometer.spectrometer_settings import FloatSetting, BooleanSetting, IntSetting, StringSetting, SelectionSetting
+from .visual_settings import VisualFloatSetting, VisualIntSetting, VisualBooleanSetting, VisualStringSetting, VisualSelectionSetting
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +57,9 @@ class BaseSpectrometerModel(ModuleModel):
             elif isinstance(setting, StringSetting):
                 self.quackseq_visuals[name] = VisualStringSetting(setting)
 
+            elif isinstance(setting, SelectionSetting):
+                self.quackseq_visuals[name] = VisualSelectionSetting(setting)
+                
             else:
                 logger.error(f"Setting type {type(setting)} not supported")
 
