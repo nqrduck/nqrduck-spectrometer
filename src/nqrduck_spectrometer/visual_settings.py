@@ -3,7 +3,7 @@
 import logging
 from PyQt6.QtCore import pyqtSignal, pyqtSlot, QObject
 from PyQt6.QtWidgets import QLineEdit, QComboBox, QCheckBox
-from nqrduck.helpers.duckwidgets import DuckFloatEdit, DuckIntEdit, DuckSpinBox
+from nqrduck.helpers.duckwidgets import DuckIntEdit, DuckSpinBox
 
 from quackseq.spectrometer.spectrometer_settings import (
     FloatSetting,
@@ -174,7 +174,7 @@ class VisualBooleanSetting(VisualSetting):
 
     def __init__(self, setting: BooleanSetting) -> None:
         """Create a new boolean setting."""
-        super().__init(
+        super().__init__(
             setting
         )
 
@@ -191,7 +191,7 @@ class VisualBooleanSetting(VisualSetting):
         try:
             self.setting.value = bool(value)
             if self.widget:
-                self.widget.setChecked(self._value)
+                self.widget.setChecked(self.value)
             self.settings_changed.emit()
         except ValueError:
             raise ValueError("Value must be a bool")
@@ -210,6 +210,16 @@ class VisualBooleanSetting(VisualSetting):
             lambda x=widget, s=self: s.on_value_changed(bool(x))
         )
         return widget
+    
+    @pyqtSlot(bool)
+    def on_value_changed(self, value):
+        """Update the value of the setting.
+
+        Args:
+            value (bool): The new value of the setting.
+        """
+        self.value = value
+        self.settings_changed.emit()
 
 
 class VisualSelectionSetting(VisualSetting):
@@ -244,7 +254,7 @@ class VisualSelectionSetting(VisualSetting):
         # This fixes a bug when creating the widget when the options are not yet set
         except AttributeError:
             self._value = value
-            self.options = [value]
+            self.setting.options = [value]
             self.settings_changed.emit()
 
     def get_widget(self):
@@ -256,8 +266,8 @@ class VisualSelectionSetting(VisualSetting):
             QComboBox: A QComboBox widget that can be used to change the setting.
         """
         widget = QComboBox()
-        widget.addItems(self.options)
-        widget.setCurrentText(self.value)
+        widget.addItems(self.setting.options)
+        widget.setCurrentText(self.setting.value)
         widget.currentTextChanged.connect(
             lambda x=widget, s=self: s.on_value_changed(x)
         )
