@@ -62,6 +62,7 @@ class VisualFloatSetting(VisualSetting):
                 max_value=setting.max_value,
                 slider=setting.slider,
                 double_box=True,
+                suffix=setting.suffix,
             )
             self.widget.spin_box.setValue(setting.default)
             self.spin_box = True
@@ -123,7 +124,7 @@ class VisualIntSetting(VisualSetting):
                 min_value=setting.min_value,
                 max_value=setting.max_value,
                 slider=setting.slider,
-                double_box=True,
+                double_box=False,
             )
             self.spin_box = True
             self.widget.spin_box.setValue(setting.default)
