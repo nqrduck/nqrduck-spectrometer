@@ -273,6 +273,15 @@ class VisualSelectionSetting(VisualSetting):
             lambda x=widget, s=self: s.on_value_changed(x)
         )
         return widget
+    
+    def on_value_changed(self, value):
+        """Update the value of the setting.
+
+        Args:
+            value (str): The new value of the setting.
+        """
+        self.value = value
+        self.settings_changed.emit()
 
 
 class VisualStringSetting(VisualSetting):
