@@ -92,7 +92,6 @@ class VisualFloatSetting(VisualSetting):
     def value(self, value):
         logger.debug(f"Setting {self.setting.name} to {value}")
         self.setting.value = value
-        self.settings_changed.emit()
 
         if self.widget:
             if self.spin_box:
@@ -120,14 +119,21 @@ class VisualIntSetting(VisualSetting):
         super().__init__(setting)
 
         if setting.min_value is not None and setting.max_value is not None:
-            self.widget = DuckSpinBox(
-                min_value=setting.min_value,
-                max_value=setting.max_value,
-                slider=setting.slider,
-                double_box=False,
-            )
-            self.spin_box = True
-            self.widget.spin_box.setValue(setting.default)
+            if setting.scientific_notation:
+                self.widget = DuckIntEdit(
+                    min_value=setting.min_value,
+                    max_value=setting.max_value,
+                )
+                self.widget.setText(str(setting.default))
+            else:
+                self.widget = DuckSpinBox(
+                    min_value=setting.min_value,
+                    max_value=setting.max_value,
+                    slider=setting.slider,
+                    double_box=False,
+                )
+                self.spin_box = True
+                self.widget.spin_box.setValue(setting.default)
         
         else:
             self.widget = DuckIntEdit(
@@ -156,12 +162,18 @@ class VisualIntSetting(VisualSetting):
     @value.setter
     def value(self, value):
         logger.debug(f"Setting {self.setting.name} to {value}")
+        # If  the value is a  str we save it
+        str_value = None
+        if isinstance(value, str):
+            str_value = value
         value = int(float(value))
         self.setting.value = value
         self.settings_changed.emit()
         if self.widget:
             if self.spin_box:
                 self.widget.spin_box.setValue(value)
+            elif str_value is not None:
+                self.widget.setText(str_value)
             else:
                 self.widget.setText(str(value))
 
@@ -324,3 +336,12 @@ class VisualStringSetting(VisualSetting):
             lambda x=widget, s=self: s.on_value_changed(x.text())
         )
         return widget
+    
+    def on_value_changed(self, value):
+        """Update the value of the setting.
+
+        Args:
+            value (str): The new value of the setting.
+        """
+        self.value = value
+        self.settings_changed.emit()

@@ -34,6 +34,10 @@ class BaseSpectrometerController(ModuleController):
 
     def load_settings(self, path: str) -> None:
         """Loads the settings of the spectrometer."""
+        if path is None:
+            logger.error("No settings file selected")
+            return
+        
         with open(path) as f:
             json = f.read()
 
