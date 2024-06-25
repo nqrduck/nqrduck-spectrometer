@@ -30,11 +30,12 @@ class VisualSetting(QObject):
 
         Args:
             setting (Setting): The setting that is used to create the visual setting.
+            args: Additional arguments.
+            kwargs: Additional keyword arguments.
         """
         self.widget = None
         self.setting = setting
-        super().__init__()
-
+        super().__init__(*args, **kwargs)
 
 
 class VisualFloatSetting(VisualSetting):
@@ -67,7 +68,11 @@ class VisualFloatSetting(VisualSetting):
             self.widget.spin_box.setValue(setting.default)
             self.spin_box = True
         else:
-            self.widget = DuckSpinBox(min_value=setting.min_value, max_value=setting.max_value, double_box=True)
+            self.widget = DuckSpinBox(
+                min_value=setting.min_value,
+                max_value=setting.max_value,
+                double_box=True,
+            )
             self.widget.set_value(setting.default)
 
         self.widget.state_updated.connect(self.on_state_updated)
@@ -134,7 +139,7 @@ class VisualIntSetting(VisualSetting):
                 )
                 self.spin_box = True
                 self.widget.spin_box.setValue(setting.default)
-        
+
         else:
             self.widget = DuckIntEdit(
                 min_value=setting.min_value, max_value=setting.max_value
@@ -187,9 +192,7 @@ class VisualBooleanSetting(VisualSetting):
 
     def __init__(self, setting: BooleanSetting) -> None:
         """Create a new boolean setting."""
-        super().__init__(
-            setting
-        )
+        super().__init__(setting)
 
         # Overrides the default widget
         self.widget = self.get_widget()
@@ -223,7 +226,7 @@ class VisualBooleanSetting(VisualSetting):
             lambda x=widget, s=self: s.on_value_changed(bool(x))
         )
         return widget
-    
+
     @pyqtSlot(bool)
     def on_value_changed(self, value):
         """Update the value of the setting.
@@ -285,7 +288,7 @@ class VisualSelectionSetting(VisualSetting):
             lambda x=widget, s=self: s.on_value_changed(x)
         )
         return widget
-    
+
     def on_value_changed(self, value):
         """Update the value of the setting.
 
@@ -320,7 +323,7 @@ class VisualStringSetting(VisualSetting):
             self.settings_changed.emit()
         except ValueError:
             raise ValueError("Value must be a string")
-        
+
     def get_widget(self):
         """Return a widget for the setting.
 
@@ -336,7 +339,7 @@ class VisualStringSetting(VisualSetting):
             lambda x=widget, s=self: s.on_value_changed(x.text())
         )
         return widget
-    
+
     def on_value_changed(self, value):
         """Update the value of the setting.
 
@@ -345,3 +348,13 @@ class VisualStringSetting(VisualSetting):
         """
         self.value = value
         self.settings_changed.emit()
+
+
+class VisualTableSetting:
+    """A setting that is a table.
+
+    Args:
+        setting (TableSetting) : The setting that is used to create the visual setting.
+    """
+
+    pass

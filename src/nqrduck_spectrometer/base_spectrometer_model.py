@@ -38,7 +38,11 @@ class BaseSpectrometerModel(ModuleModel):
         self.quackseq_model = None
         self.quackseq_visuals = dict()
 
-    def visualize_settings(self):
+    def visualize_settings(self) -> None:
+        """Visualizes the settings of the spectrometer.
+        
+        This method creates a dictionary of visual settings from the settings of the spectrometer.
+        """
         settings  = self.quackseq_model.settings
 
         for name, setting in settings.items():
