@@ -205,6 +205,7 @@ class VisualBooleanSetting(VisualSetting):
     @value.setter
     def value(self, value):
         try:
+            logger.debug(f"Setting {self.setting.name} to {value}")
             self.setting.value = bool(value)
             if self.widget:
                 self.widget.setChecked(self.value)
@@ -261,8 +262,9 @@ class VisualSelectionSetting(VisualSetting):
     def value(self, value):
         try:
             if value in self.setting.options:
-                self.setting.value
+                self.setting.value = value
                 if self.widget:
+                    logger.debug(f"Setting {self.setting.name} to {value}")
                     self.widget.setCurrentText(value)
                 self.settings_changed.emit()
             else:
@@ -296,6 +298,7 @@ class VisualSelectionSetting(VisualSetting):
             value (str): The new value of the setting.
         """
         self.value = value
+        logger.debug(f"Setting {self.setting.name} to {value}")
         self.settings_changed.emit()
 
 
