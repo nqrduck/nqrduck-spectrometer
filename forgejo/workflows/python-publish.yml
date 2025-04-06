@@ -16,7 +16,8 @@ jobs:
 
   deploy:
 
-    runs-on: ubuntu-latest
+    container:
+      image: node:22-bookworm
 
   #  needs: [test]
 
