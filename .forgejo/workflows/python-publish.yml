@@ -15,7 +15,7 @@ jobs:
   #      uses: ./.github/workflows/ubuntu-python-package.yml  # use the callable tests job to run tests
 
   deploy:
-
+    runs-on: docker
     container:
       image: node:22-bookworm
 
