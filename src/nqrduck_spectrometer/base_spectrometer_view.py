@@ -16,7 +16,6 @@ from nqrduck.assets.icons import Logos
 
 logger = logging.getLogger(__name__)
 
-
 class BaseSpectrometerView(ModuleView):
     """The View Class for all Spectrometers."""
 
@@ -46,7 +45,11 @@ class BaseSpectrometerView(ModuleView):
         self._ui_form.verticalLayout.addWidget(label)
         self._ui_form.verticalLayout.addLayout(grid)
 
-        for category_count, category in enumerate(self.module.model.settings.keys()):
+        settings =  self.module.model.quackseq_model.settings
+
+        categories = settings.categories
+
+        for category_count, category in enumerate(categories):
             logger.debug("Adding settings for category: %s", category)
             category_layout = QVBoxLayout()
             category_label = QLabel(f"{category}:")
@@ -55,7 +58,7 @@ class BaseSpectrometerView(ModuleView):
             column = category_count % 2
 
             category_layout.addWidget(category_label)
-            for setting in self.module.model.settings[category]:
+            for key, setting in settings.get_settings_by_category(category).items():
                 logger.debug("Adding setting to settings view: %s", setting.name)
 
                 spacer = QSpacerItem(20, 20)
@@ -63,7 +66,7 @@ class BaseSpectrometerView(ModuleView):
                 setting_label = QLabel(setting.name)
                 setting_label.setMinimumWidth(200)
 
-                edit_widget = setting.widget
+                edit_widget = self.module.model.quackseq_visuals[key].widget
                 logger.debug("Setting widget: %s", edit_widget)
 
                 # Add a icon that can be used as a tooltip
