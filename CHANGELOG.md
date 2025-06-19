@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.0.13 (19-06-2025)
+
+- Change to quackseq pulseprogramming framework (`47c442ca84f3691091983cf31866888689864f3b`)
+
 ## Version 0.0.12  (27-05-2024)
 
 - Implemented loading and saving of settings and default settings (`6496ec6824da33fa41a38e26fdcac9a03ceb51fb`)

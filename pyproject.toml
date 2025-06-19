@@ -7,7 +7,7 @@ allow-direct-references = true
 
 [project]
 name = "nqrduck-spectrometer"
-version = "0.0.12"
+version = "0.0.13"
 authors = [
   { name="jupfi", email="support@nqruck.cool" },
 ]
